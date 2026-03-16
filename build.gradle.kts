@@ -9,14 +9,20 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven("https://jitpack.io")
 }
 
 dependencies {
+    implementation("com.github.bitfireAT:dav4jvm:59ab44eb6e")
+    implementation("io.ktor:ktor-client-auth:3.4.1")
+    implementation("io.ktor:ktor-client-cio:3.4.1")
+    implementation("io.ktor:ktor-client-logging:3.4.1")
     implementation("io.ktor:ktor-server-cio:3.4.1")
     implementation("io.ktor:ktor-server-content-negotiation:3.4.1")
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.4.1")
     implementation("io.modelcontextprotocol:kotlin-sdk:0.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
+    implementation("org.mnode.ical4j:ical4j:4.2.3")
     testImplementation(kotlin("test"))
 }
 
