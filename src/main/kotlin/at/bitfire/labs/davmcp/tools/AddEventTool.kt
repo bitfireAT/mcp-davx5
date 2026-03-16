@@ -5,6 +5,9 @@ import io.ktor.client.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.logging.*
+import io.ktor.client.request.put
+import io.ktor.client.request.setBody
+import io.ktor.client.request.url
 import io.ktor.http.*
 import io.ktor.utils.io.*
 import io.modelcontextprotocol.kotlin.sdk.server.ClientConnection
@@ -124,7 +127,7 @@ class AddEventTool {
 
         // write to String and return it
         val baos = ByteArrayOutputStream()
-        CalendarOutputter().output(calendar, baos)
+        CalendarOutputter(false).output(calendar, baos)
         return baos.toByteArray()
     }
 
@@ -139,7 +142,7 @@ class AddEventTool {
                 basic {
                     credentials {
                         sendWithoutRequest { true }
-                        BasicAuthCredentials(username = "test", password = "publicxxx1")
+                        BasicAuthCredentials(username = "test", password = "<no-password-here>")
                     }
                 }
             }
@@ -151,14 +154,21 @@ class AddEventTool {
             val url = URLBuilder(calendarUrl).appendPathSegments(memberName).build()
             System.err.println("Uploading $iCalendar to $url")
 
-            val calendar = DavCalendar(client, url)
+            val response = client.put {
+                url(url)
+                setBody(iCalendar)
+            }
+            if (!response.status.isSuccess())
+                throw IOException("HTTP ${response.status.value} ${response.status.description}")
+
+            /*val calendar = DavCalendar(client, url)
             calendar.put(
                 provideBody = { ByteReadChannel(iCalendar) },
-                mimeType = ContentType.parse("text/calendar")
+                mimeType = ContentType.parse("text/calendar; charset=utf-8")
             ) { response ->
                 if (!response.status.isSuccess())
                     throw IOException("HTTP ${response.status.value} ${response.status.description}")
-            }
+            }*/
         }
     }
 
