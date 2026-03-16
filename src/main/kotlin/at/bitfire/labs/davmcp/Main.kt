@@ -1,5 +1,6 @@
-package at.bitfire.labs
+package at.bitfire.labs.davmcp
 
+import at.bitfire.labs.davmcp.tools.ExampleTool
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
@@ -8,12 +9,10 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.modelcontextprotocol.kotlin.sdk.server.Server
 import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
 import io.modelcontextprotocol.kotlin.sdk.server.mcpStreamableHttp
-import io.modelcontextprotocol.kotlin.sdk.types.*
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import io.modelcontextprotocol.kotlin.sdk.types.Implementation
+import io.modelcontextprotocol.kotlin.sdk.types.McpJson
+import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 fun main(args: Array<String>) {
     val port = args.firstOrNull()?.toIntOrNull() ?: 3000
     val mcpServer = Server(
@@ -28,17 +27,11 @@ fun main(args: Array<String>) {
         )
     )
 
+    val exampleTool = ExampleTool()
     mcpServer.addTool(
-        name = "example-tool",
-        description = "An example tool",
-        inputSchema = ToolSchema(
-            properties = buildJsonObject {
-                put("input", buildJsonObject { put("type", "string") })
-            }
-        )
-    ) { request ->
-        CallToolResult(content = listOf(TextContent("Hello, world!")))
-    }
+        exampleTool.tool(),
+        exampleTool::handler
+    )
 
     println("Running MCP server")
     embeddedServer(CIO, host = "127.0.0.1", port = port) {

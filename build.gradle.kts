@@ -29,14 +29,14 @@ tasks.test {
 }
 
 application {
-    mainClass.set("at.bitfire.labs.MainKt")
+    mainClass.set("at.bitfire.labs.davmcp.MainKt")
 }
 
 tasks.register<Jar>("fatJar") {
     archiveClassifier.set("all")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
-        attributes["Main-Class"] = "at.bitfire.labs.MainKt"
+        attributes["Main-Class"] = "at.bitfire.labs.davmcp.MainKt"
     }
     from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
     with(tasks.jar.get())
