@@ -1,6 +1,6 @@
 package at.bitfire.labs.davmcp
 
-import at.bitfire.labs.davmcp.tools.ExampleTool
+import at.bitfire.labs.davmcp.tools.AddEventTool
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
@@ -27,10 +27,10 @@ fun main(args: Array<String>) {
         )
     )
 
-    val exampleTool = ExampleTool()
+    val addEventTool = AddEventTool()
     mcpServer.addTool(
-        exampleTool.tool(),
-        exampleTool::handler
+        addEventTool.tool(),
+        addEventTool::handler
     )
 
     println("Running MCP server")
