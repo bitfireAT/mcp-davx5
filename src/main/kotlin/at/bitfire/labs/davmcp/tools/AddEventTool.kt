@@ -1,5 +1,6 @@
 package at.bitfire.labs.davmcp.tools
 
+import at.bitfire.labs.davmcp.DavConfig
 import io.ktor.client.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
@@ -29,7 +30,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-class AddEventTool {
+class AddEventTool(private val config: DavConfig) {
 
     @Serializable
     private data class EventRequest(
@@ -147,12 +148,14 @@ class AddEventTool {
 
 
     private suspend fun uploadToCollection(memberName: String, iCalendar: ByteArray) {
+        val authUsername = config.username
+        val authPassword = config.password
         HttpClient {
             install(Auth) {
                 basic {
+                    sendWithoutRequest { true }
                     credentials {
-                        sendWithoutRequest { true }
-                        BasicAuthCredentials(username = "test", password = "<no-password-here>")
+                        BasicAuthCredentials(username = authUsername, password = authPassword)
                     }
                 }
             }
@@ -160,8 +163,8 @@ class AddEventTool {
                 logger = Logger.SIMPLE
             }
         }.use { client ->
-            val calendarUrl = Url("https://nextcloud.davtest.dev001.net/remote.php/dav/calendars/test/mcp-test/")
-            val url = URLBuilder(calendarUrl).appendPathSegments(memberName).build()
+            val collectionUrl = Url(config.calendarUrl)
+            val url = URLBuilder(collectionUrl).appendPathSegments(memberName).build()
             System.err.println("Uploading $iCalendar to $url")
 
             val response = client.put {

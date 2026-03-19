@@ -15,6 +15,7 @@ import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
 
 fun main(args: Array<String>) {
     val port = args.firstOrNull()?.toIntOrNull() ?: 3000
+    val config = DavConfig.fromEnvironment()
     val mcpServer = Server(
         serverInfo = Implementation(
             name = "3dav-mcp-server",
@@ -27,7 +28,7 @@ fun main(args: Array<String>) {
         )
     )
 
-    val addEventTool = AddEventTool()
+    val addEventTool = AddEventTool(config)
     mcpServer.addTool(
         addEventTool.tool(),
         addEventTool::handler
