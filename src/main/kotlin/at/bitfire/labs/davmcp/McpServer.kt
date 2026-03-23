@@ -1,6 +1,6 @@
 package at.bitfire.labs.davmcp
 
-import at.bitfire.labs.davmcp.tools.AddEventTool
+import at.bitfire.labs.davmcp.tools.McpTool
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
@@ -12,10 +12,11 @@ import io.modelcontextprotocol.kotlin.sdk.server.mcpStreamableHttp
 import io.modelcontextprotocol.kotlin.sdk.types.Implementation
 import io.modelcontextprotocol.kotlin.sdk.types.McpJson
 import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
+import kotlin.jvm.JvmSuppressWildcards
 import javax.inject.Inject
 
 class McpServer @Inject constructor(
-    private val addEventTool: AddEventTool
+    private val tools: Set<@JvmSuppressWildcards McpTool>
 ) {
 
     private val mcpServer = Server(
@@ -31,10 +32,12 @@ class McpServer @Inject constructor(
     )
 
     init {
-        mcpServer.addTool(
-            addEventTool.tool(),
-            addEventTool::handler
-        )
+        tools.forEach { tool ->
+            mcpServer.addTool(
+                tool.tool(),
+                tool::handler
+            )
+        }
     }
 
     fun start(port: Int) {

@@ -6,10 +6,9 @@ import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [AppModule::class])
+@Component(modules = [AppModule::class, ToolsModule::class])
 interface AppComponent {
 
-    fun addEventTool(): AddEventTool
     fun mcpServer(): McpServer
 
 }
