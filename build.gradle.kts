@@ -1,6 +1,7 @@
 plugins {
-    kotlin("jvm") version "2.3.0"
-    kotlin("plugin.serialization") version "2.3.20"
+    kotlin("jvm") version "2.2.0"
+    kotlin("plugin.serialization") version "2.2.0"
+    id("com.google.devtools.ksp") version "2.2.0-2.0.2"
     application
 }
 
@@ -23,6 +24,8 @@ dependencies {
     implementation("io.modelcontextprotocol:kotlin-sdk:0.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
     implementation("org.mnode.ical4j:ical4j:4.2.3")
+    implementation("com.google.dagger:dagger:2.56.2")
+    ksp("com.google.dagger:dagger-compiler:2.56.2")
     testImplementation(kotlin("test"))
 }
 

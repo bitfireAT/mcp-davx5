@@ -30,7 +30,11 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-class AddEventTool(private val config: DavConfig) {
+import javax.inject.Inject
+
+class AddEventTool @Inject constructor(
+    private val config: DavConfig
+) {
 
     @Serializable
     private data class EventRequest(

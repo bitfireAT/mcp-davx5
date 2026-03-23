@@ -1,6 +1,6 @@
 package at.bitfire.labs.davmcp
 
-import at.bitfire.labs.davmcp.tools.AddEventTool
+import at.bitfire.labs.davmcp.di.DaggerAppComponent
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.cio.*
@@ -15,7 +15,7 @@ import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
 
 fun main(args: Array<String>) {
     val port = args.firstOrNull()?.toIntOrNull() ?: 3000
-    val config = DavConfig.fromEnvironment()
+    val addEventTool = DaggerAppComponent.create().addEventTool()
     val mcpServer = Server(
         serverInfo = Implementation(
             name = "3dav-mcp-server",
@@ -28,7 +28,6 @@ fun main(args: Array<String>) {
         )
     )
 
-    val addEventTool = AddEventTool(config)
     mcpServer.addTool(
         addEventTool.tool(),
         addEventTool::handler
