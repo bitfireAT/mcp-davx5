@@ -34,7 +34,7 @@ import javax.inject.Inject
 
 class AddEventTool @Inject constructor(
     private val config: DavConfig
-) {
+) : McpTool {
 
     @Serializable
     private data class EventRequest(
@@ -53,7 +53,7 @@ class AddEventTool @Inject constructor(
         val location: String?
     )
 
-    fun tool() = Tool(
+    override fun tool() = Tool(
         name = "events.add",
         description = "Adds an event to the user's calendar",
         inputSchema = ToolSchema(
@@ -85,7 +85,7 @@ class AddEventTool @Inject constructor(
         )
     )
     
-    suspend fun handler(connection: ClientConnection, request: CallToolRequest): CallToolResult {
+    override suspend fun handler(connection: ClientConnection, request: CallToolRequest): CallToolResult {
         try {
             val json = Json {
                 ignoreUnknownKeys = true
