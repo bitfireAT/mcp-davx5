@@ -1,11 +1,11 @@
 package at.bitfire.labs.davmcp.tools
 
+import at.bitfire.dav4jvm.ktor.DavCalendar
 import at.bitfire.labs.davmcp.DavConfig
 import io.ktor.client.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.logging.*
-import io.ktor.client.request.*
 import io.ktor.http.*
 import io.modelcontextprotocol.kotlin.sdk.server.ClientConnection
 import io.modelcontextprotocol.kotlin.sdk.types.*
@@ -25,12 +25,12 @@ import net.fortuna.ical4j.model.property.*
 import net.fortuna.ical4j.model.property.immutable.ImmutableCalScale
 import net.fortuna.ical4j.model.property.immutable.ImmutableVersion
 import okio.IOException
-import java.io.ByteArrayOutputStream
+import java.io.StringWriter
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
-
 import javax.inject.Inject
+import io.ktor.http.content.TextContent as KtorTextContent
 
 class AddEventTool @Inject constructor(
     private val config: DavConfig
@@ -121,7 +121,7 @@ class AddEventTool @Inject constructor(
     }
 
 
-    private fun generateICal(uid: String, eventData: EventData): ByteArray {
+    private fun generateICal(uid: String, eventData: EventData): String {
         val calendar = Calendar()
         calendar += ImmutableVersion.VERSION_2_0
         calendar += ImmutableCalScale.GREGORIAN
@@ -141,9 +141,9 @@ class AddEventTool @Inject constructor(
         calendar.add<ComponentContainer<CalendarComponent>>(event)
 
         // write to String and return it
-        val baos = ByteArrayOutputStream()
-        CalendarOutputter(false).output(calendar, baos)
-        return baos.toByteArray()
+        val writer = StringWriter()
+        CalendarOutputter(false).output(calendar, writer)
+        return writer.toString()
     }
 
     private operator fun PropertyContainer.plusAssign(property: Property) {
@@ -151,7 +151,7 @@ class AddEventTool @Inject constructor(
     }
 
 
-    private suspend fun uploadToCollection(memberName: String, iCalendar: ByteArray) {
+    private suspend fun uploadToCollection(memberName: String, iCalendar: String) {
         val authUsername = config.username
         val authPassword = config.password
         HttpClient {
@@ -171,21 +171,15 @@ class AddEventTool @Inject constructor(
             val url = URLBuilder(collectionUrl).appendPathSegments(memberName).build()
             System.err.println("Uploading $iCalendar to $url")
 
-            val response = client.put {
-                url(url)
-                setBody(iCalendar)
-            }
-            if (!response.status.isSuccess())
-                throw IOException("HTTP ${response.status.value} ${response.status.description}")
-
-            /*val calendar = DavCalendar(client, url)
-            calendar.put(
-                provideBody = { ByteReadChannel(iCalendar) },
-                mimeType = ContentType.parse("text/calendar; charset=utf-8")
-            ) { response ->
+            val calendar = DavCalendar(client, url)
+            val content = KtorTextContent(
+                text = iCalendar,
+                contentType = ContentType.parse("text/calendar")
+            )
+            calendar.put(content) { response ->
                 if (!response.status.isSuccess())
                     throw IOException("HTTP ${response.status.value} ${response.status.description}")
-            }*/
+            }
         }
     }
 

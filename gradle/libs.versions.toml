@@ -3,13 +3,13 @@ kotlin = "2.3.20"
 ksp = "2.3.6"
 ktor = "3.4.1"
 dagger = "2.56.2"
-dav4jvm = "59ab44eb6e"
+dav4jvm = "983c969e2c"
 kotlinx-serialization = "1.10.0"
 ical4j = "4.2.3"
 mcp-kotlin-sdk = "0.9.0"
 
 [libraries]
-dav4jvm = { module = "com.github.bitfireAT:dav4jvm", version.ref = "dav4jvm" }
+dav4jvm = { module = "com.github.bitfireat:dav4jvm", version.ref = "dav4jvm" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 ical4j = { module = "org.mnode.ical4j:ical4j", version.ref = "ical4j" }
