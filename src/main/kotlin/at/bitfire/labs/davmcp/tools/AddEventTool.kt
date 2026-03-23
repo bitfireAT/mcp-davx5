@@ -92,7 +92,6 @@ class AddEventTool @Inject constructor(
                 isLenient = true
                 explicitNulls = false
             }
-            
             val eventRequest = json.decodeFromJsonElement<EventRequest>(
                 request.arguments ?: throw IllegalArgumentException("Request arguments are required")
             )
