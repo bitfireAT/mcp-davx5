@@ -3,7 +3,6 @@ kotlin = "2.2.0"
 ksp = "2.2.0-2.0.2"
 ktor = "3.4.1"
 dagger = "2.56.2"
-foojay = "1.0.0"
 dav4jvm = "59ab44eb6e"
 kotlinx-serialization = "1.10.0"
 ical4j = "4.2.3"
@@ -31,4 +30,3 @@ ktor-server = ["ktor-server-cio", "ktor-server-content-negotiation", "ktor-seria
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-foojay = { id = "org.gradle.toolchains.foojay-resolver-convention", version.ref = "foojay" }
