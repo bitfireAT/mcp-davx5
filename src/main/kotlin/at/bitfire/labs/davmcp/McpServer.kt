@@ -12,8 +12,11 @@ import io.modelcontextprotocol.kotlin.sdk.server.mcpStreamableHttp
 import io.modelcontextprotocol.kotlin.sdk.types.Implementation
 import io.modelcontextprotocol.kotlin.sdk.types.McpJson
 import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
+import javax.inject.Inject
 
-class McpServer(private val addEventTool: AddEventTool) {
+class McpServer @Inject constructor(
+    private val addEventTool: AddEventTool
+) {
 
     private val mcpServer = Server(
         serverInfo = Implementation(
