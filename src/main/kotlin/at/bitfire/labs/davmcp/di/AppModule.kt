@@ -2,7 +2,7 @@ package at.bitfire.labs.davmcp.di
 
 import at.bitfire.labs.davmcp.DavConfig
 import at.bitfire.labs.davmcp.HttpClientBuilder
-import at.bitfire.labs.davmcp.icalendar.SimpleConverter
+import at.bitfire.labs.davmcp.icalendar.SimpleEventConverter
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -20,6 +20,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSimpleConverter(): SimpleConverter = SimpleConverter()
+    fun provideSimpleConverter(): SimpleEventConverter = SimpleEventConverter()
 
 }

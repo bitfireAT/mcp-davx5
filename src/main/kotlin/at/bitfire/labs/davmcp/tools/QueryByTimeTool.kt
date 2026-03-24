@@ -6,10 +6,10 @@ import at.bitfire.dav4jvm.property.caldav.CalDAV
 import at.bitfire.dav4jvm.property.caldav.CalendarData
 import at.bitfire.labs.davmcp.DavConfig
 import at.bitfire.labs.davmcp.HttpClientBuilder
-import at.bitfire.labs.davmcp.LenientJson
-import at.bitfire.labs.davmcp.icalendar.SimpleConverter
 import at.bitfire.labs.davmcp.icalendar.SimpleEvent
+import at.bitfire.labs.davmcp.icalendar.SimpleEventConverter
 import at.bitfire.labs.davmcp.icalendar.simpleEventSchema
+import at.bitfire.labs.davmcp.json.McpJson
 import io.ktor.http.*
 import io.modelcontextprotocol.kotlin.sdk.server.ClientConnection
 import io.modelcontextprotocol.kotlin.sdk.types.*
@@ -23,7 +23,7 @@ import javax.inject.Inject
 class QueryByTimeTool @Inject constructor(
     private val config: DavConfig,
     private val httpClientBuilder: HttpClientBuilder,
-    private val simpleConverter: SimpleConverter
+    private val simpleEventConverter: SimpleEventConverter
 ) : McpTool {
 
     private val logger
@@ -67,7 +67,7 @@ class QueryByTimeTool @Inject constructor(
     )
 
     override suspend fun handler(connection: ClientConnection, request: CallToolRequest): CallToolResult {
-        val queryRequest = LenientJson.decodeFromJsonElement<QueryByTimeRequest>(
+        val queryRequest = McpJson.decodeFromJsonElement<QueryByTimeRequest>(
             request.arguments ?: throw IllegalArgumentException("Request arguments are required")
         )
         logger.info("QueryByTime: $queryRequest")
@@ -85,14 +85,14 @@ class QueryByTimeTool @Inject constructor(
                     return@calendarQuery
 
                 val calendarData = response[CalendarData::class.java]?.iCalendar ?: return@calendarQuery
-                val event = simpleConverter.convert(response.hrefName(), calendarData)
+                val event = simpleEventConverter.convert(response.hrefName(), calendarData)
                 if (event != null)
                     events += event
             }
             return CallToolResult(
-                content = listOf(TextContent(LenientJson.encodeToString(events))),
+                content = listOf(TextContent(McpJson.encodeToString(events))),
                 isError = false,
-                structuredContent = LenientJson.encodeToJsonElement(Result(events)).jsonObject
+                structuredContent = McpJson.encodeToJsonElement(Result(events)).jsonObject
             ).also { logger.info("Result: $it") }
         }
 

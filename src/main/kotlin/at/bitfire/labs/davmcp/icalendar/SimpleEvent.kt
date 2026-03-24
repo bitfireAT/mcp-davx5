@@ -1,19 +1,31 @@
+@file:UseSerializers(
+    InstantSerializer::class,
+    LocalDateSerializer::class
+)
+
 package at.bitfire.labs.davmcp.icalendar
 
+import at.bitfire.labs.davmcp.json.InstantSerializer
+import at.bitfire.labs.davmcp.json.LocalDateSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.json.JsonObjectBuilder
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import java.time.Instant
+import java.time.LocalDate
 
 @Serializable
 data class SimpleEvent(
     val fileName: String?,
     val iCalendar: String,
     val title: String?,
-    val startDateTime: String?,
-    val startDate: String?,
-    val endDateTime: String?,
-    val endDate: String?
+    val startDateTime: Instant?,
+    val startDate: LocalDate?,
+    val endDateTime: Instant?,
+    val endDate: LocalDate?,
+    val location: String?,
+    val description: String?
 )
 
 fun JsonObjectBuilder.simpleEventSchema() {
@@ -50,6 +62,14 @@ fun JsonObjectBuilder.simpleEventSchema() {
             put("type", "string")
             put("format", "date")
             put("description", "End date of the event")
+        })
+        put("location", buildJsonObject {
+            put("type", "string")
+            put("description", "Event location (LOCATION)")
+        })
+        put("description", buildJsonObject {
+            put("type", "string")
+            put("description", "Event description (DESCRIPTION)")
         })
     })
     //put("required", json.encodeToJsonElement(listOf("fileName", "iCal")))

@@ -5,12 +5,13 @@ import net.fortuna.ical4j.model.Component
 import net.fortuna.ical4j.model.TemporalAdapter
 import net.fortuna.ical4j.model.component.VEvent
 import java.io.StringReader
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.temporal.Temporal
 import kotlin.jvm.optionals.getOrNull
 
-class SimpleConverter {
+class SimpleEventConverter {
 
     fun convert(fileName: String?, iCalendar: String): SimpleEvent? {
         val calendar = CalendarBuilder().build(StringReader(iCalendar))
@@ -19,27 +20,23 @@ class SimpleConverter {
         val dtStart: Temporal? = vEvent.getDateTimeStart<Temporal>()?.date
         val dtEnd: Temporal? = vEvent.getEndDate<Temporal>(true)?.getOrNull()?.date
 
-        val startDateTime = if (dtStart != null && TemporalAdapter.isDateTimePrecision(dtStart))
-            TemporalAdapter.toLocalTime(dtStart, ZoneOffset.UTC).toInstant()
-        else
-            null
-        val startDate: LocalDate? = dtStart as? LocalDate
-
-        val endDateTime = if (dtEnd != null && TemporalAdapter.isDateTimePrecision(dtStart))
-            TemporalAdapter.toLocalTime(dtEnd, ZoneOffset.UTC).toInstant()
-        else
-            null
-        val endDate: LocalDate? = dtEnd as? LocalDate
-
         return SimpleEvent(
             fileName = fileName,
             iCalendar = iCalendar,
             title = vEvent.summary?.value,
-            startDateTime = startDateTime?.toString(),
-            startDate = startDate?.toString(),
-            endDateTime = endDateTime?.toString(),
-            endDate = endDate?.toString()
+            startDateTime = dtStart?.instantIfDateTime(),
+            startDate = dtStart as? LocalDate,
+            endDateTime = dtEnd?.instantIfDateTime(),
+            endDate = dtEnd as? LocalDate,
+            location = vEvent.location?.value,
+            description = vEvent.description?.value
         )
     }
+
+    private fun Temporal?.instantIfDateTime(): Instant? =
+        if (TemporalAdapter.isDateTimePrecision(this))
+            TemporalAdapter.toLocalTime(this, ZoneOffset.UTC).toInstant()
+        else
+            null
 
 }
