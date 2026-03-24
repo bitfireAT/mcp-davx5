@@ -2,10 +2,7 @@ package at.bitfire.labs.davmcp.tools
 
 import at.bitfire.dav4jvm.ktor.DavCalendar
 import at.bitfire.labs.davmcp.DavConfig
-import io.ktor.client.*
-import io.ktor.client.plugins.auth.*
-import io.ktor.client.plugins.auth.providers.*
-import io.ktor.client.plugins.logging.*
+import at.bitfire.labs.davmcp.HttpClientBuilder
 import io.ktor.http.*
 import io.modelcontextprotocol.kotlin.sdk.server.ClientConnection
 import io.modelcontextprotocol.kotlin.sdk.types.*
@@ -33,7 +30,8 @@ import javax.inject.Inject
 import io.ktor.http.content.TextContent as KtorTextContent
 
 class AddEventTool @Inject constructor(
-    private val config: DavConfig
+    private val config: DavConfig,
+    private val httpClientBuilder: HttpClientBuilder
 ) : McpTool {
 
     @Serializable
@@ -151,21 +149,7 @@ class AddEventTool @Inject constructor(
 
 
     private suspend fun uploadToCollection(memberName: String, iCalendar: String) {
-        val authUsername = config.username
-        val authPassword = config.password
-        HttpClient {
-            install(Auth) {
-                basic {
-                    sendWithoutRequest { true }
-                    credentials {
-                        BasicAuthCredentials(username = authUsername, password = authPassword)
-                    }
-                }
-            }
-            install(Logging) {
-                logger = Logger.SIMPLE
-            }
-        }.use { client ->
+        httpClientBuilder.buildFromConfig().use { client ->
             val collectionUrl = Url(config.calendarUrl)
             val url = URLBuilder(collectionUrl).appendPathSegments(memberName).build()
             System.err.println("Uploading $iCalendar to $url")

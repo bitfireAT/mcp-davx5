@@ -4,10 +4,7 @@ import at.bitfire.dav4jvm.ktor.DavCalendar
 import at.bitfire.dav4jvm.ktor.Response
 import at.bitfire.dav4jvm.property.caldav.CalendarData
 import at.bitfire.labs.davmcp.DavConfig
-import io.ktor.client.*
-import io.ktor.client.plugins.auth.*
-import io.ktor.client.plugins.auth.providers.*
-import io.ktor.client.plugins.logging.*
+import at.bitfire.labs.davmcp.HttpClientBuilder
 import io.ktor.http.*
 import io.modelcontextprotocol.kotlin.sdk.server.ClientConnection
 import io.modelcontextprotocol.kotlin.sdk.types.*
@@ -18,7 +15,8 @@ import java.time.Instant
 import javax.inject.Inject
 
 class QueryByTimeTool @Inject constructor(
-    private val config: DavConfig
+    private val config: DavConfig,
+    private val httpClientBuilder: HttpClientBuilder
 ) : McpTool {
 
     override fun tool() = Tool(
@@ -56,22 +54,7 @@ class QueryByTimeTool @Inject constructor(
         )
         System.err.println("QueryByTime: $queryRequest")
 
-        val authUsername = config.username
-        val authPassword = config.password
-        HttpClient {
-            install(Auth) {
-                basic {
-                    sendWithoutRequest { true }
-                    credentials {
-                        BasicAuthCredentials(username = authUsername, password = authPassword)
-                    }
-                }
-            }
-            install(Logging) {
-                level = LogLevel.ALL
-                logger = Logger.SIMPLE
-            }
-        }.use { client ->
+        httpClientBuilder.buildFromConfig().use { client ->
             val url = Url(config.calendarUrl)
             val calendar = DavCalendar(client, url)
 
