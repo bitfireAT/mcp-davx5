@@ -94,7 +94,7 @@ class QueryEventsByTimeTool @Inject constructor(
                     return@calendarQuery
 
                 val calendarData = response[CalendarData::class.java]?.iCalendar ?: return@calendarQuery
-                val event = simpleEventConverter.fromICalendar(response.hrefName(), calendarData)
+                val event = simpleEventConverter.fromICalendar(calendarData)
                 if (event != null)
                     events += EventWithName(
                         fileName = response.hrefName(),

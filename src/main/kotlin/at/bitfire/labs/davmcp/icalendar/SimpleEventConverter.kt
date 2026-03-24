@@ -3,6 +3,7 @@ package at.bitfire.labs.davmcp.icalendar
 import net.fortuna.ical4j.data.CalendarBuilder
 import net.fortuna.ical4j.data.CalendarOutputter
 import net.fortuna.ical4j.model.*
+import net.fortuna.ical4j.model.Calendar
 import net.fortuna.ical4j.model.component.CalendarComponent
 import net.fortuna.ical4j.model.component.VEvent
 import net.fortuna.ical4j.model.property.*
@@ -13,11 +14,12 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.temporal.Temporal
+import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
 class SimpleEventConverter {
 
-    fun fromICalendar(fileName: String?, iCalendar: String): SimpleEvent? {
+    fun fromICalendar(iCalendar: String): SimpleEvent? {
         val calendar = CalendarBuilder().build(StringReader(iCalendar))
         val vEvent = calendar.getComponent<VEvent>(Component.VEVENT).getOrNull() ?: return null
 
@@ -25,6 +27,7 @@ class SimpleEventConverter {
         val dtEnd: Temporal? = vEvent.getEndDate<Temporal>(true)?.getOrNull()?.date
 
         return SimpleEvent(
+            uid = vEvent.uid.getOrNull()?.value,
             title = vEvent.summary?.value,
             startDateTime = dtStart?.instantIfDateTime(),
             startDate = dtStart as? LocalDate,
@@ -36,19 +39,21 @@ class SimpleEventConverter {
         )
     }
 
-    fun toICalendar(event: SimpleEvent, uid: String): String {
+    fun toICalendar(event: SimpleEvent, baseICalendar: String? = null): String {
         if (event.iCalendar != null)
             return event.iCalendar
 
-        val calendar = Calendar().apply {
+        val calendar = if (baseICalendar != null) {
+            CalendarBuilder().build(StringReader(baseICalendar))
+        } else Calendar().apply {
             this += ImmutableVersion.VERSION_2_0
             this += mcpProdId
+            add<ComponentContainer<CalendarComponent>>(VEvent())
         }
-        val vEvent = VEvent()
-        calendar.add<ComponentContainer<CalendarComponent>>(vEvent)
+        val vEvent = calendar.getComponent<VEvent>(Component.VEVENT).get()
 
         // Random UID
-        vEvent += Uid(uid)
+        vEvent += Uid(event.uid ?: UUID.randomUUID().toString())
 
         // Handle start date/time
         if (event.startDateTime != null)
@@ -83,7 +88,7 @@ class SimpleEventConverter {
             null
 
     private operator fun PropertyContainer.plusAssign(property: Property) {
-        add<PropertyContainer>(property)
+        replace<PropertyContainer>(property)
     }
 
 }

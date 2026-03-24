@@ -22,6 +22,10 @@ object ToolsModule {
 
     @Provides
     @IntoSet
+    fun provideUpdateEventTool(updateEventTool: UpdateEventTool): McpTool = updateEventTool
+
+    @Provides
+    @IntoSet
     fun provideWhenIsNowTool(whenIsNowTool: WhenIsNowTool): McpTool = whenIsNowTool
 
 }

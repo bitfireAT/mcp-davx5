@@ -15,6 +15,7 @@ import java.time.LocalDate
 
 @Serializable
 data class SimpleEvent(
+    val uid: String?,
     val title: String?,
     val startDateTime: Instant?,
     val startDate: LocalDate?,
@@ -28,6 +29,10 @@ data class SimpleEvent(
 fun JsonObjectBuilder.simpleEventSchema() {
     put("type", "object")
     put("properties", buildJsonObject {
+        put("uid", buildJsonObject {
+            put("type", "string")
+            put("description", "UID of the event")
+        })
         put("title", buildJsonObject {
             put("type", "string")
             put("description", "Event title (SUMMARY)")

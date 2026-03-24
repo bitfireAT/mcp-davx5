@@ -30,7 +30,7 @@ class AddEventTool @Inject constructor(
 
     override fun tool() = Tool(
         name = "events.add",
-        description = "Adds an event to the user's calendar.",
+        description = "Adds a new event to the user's calendar.",
         inputSchema = ToolSchema(
             properties = buildJsonObject {
                 put("eventData", buildJsonObject {
@@ -50,7 +50,7 @@ class AddEventTool @Inject constructor(
         val event = input.eventData
         val uid = UUID.randomUUID()
 
-        val iCalendar = simpleConverter.toICalendar(event, uid = UUID.randomUUID().toString())
+        val iCalendar = simpleConverter.toICalendar(event)
         uploadToCollection("$uid.ics", iCalendar)
 
         return CallToolResult(content = listOf(TextContent("Success")))
