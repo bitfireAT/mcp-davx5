@@ -6,6 +6,9 @@ import io.modelcontextprotocol.kotlin.sdk.types.CallToolResult
 import io.modelcontextprotocol.kotlin.sdk.types.Tool
 
 interface McpTool {
+
     fun tool(): Tool
+
     suspend fun handler(connection: ClientConnection, request: CallToolRequest): CallToolResult
+
 }

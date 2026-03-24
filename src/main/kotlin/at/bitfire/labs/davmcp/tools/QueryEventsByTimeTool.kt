@@ -20,11 +20,11 @@ import java.time.Instant
 import java.util.logging.Logger
 import javax.inject.Inject
 
-class QueryByTimeTool @Inject constructor(
+class QueryEventsByTimeTool @Inject constructor(
     private val config: DavConfig,
     private val httpClientBuilder: HttpClientBuilder,
     private val simpleEventConverter: SimpleEventConverter
-) : McpTool {
+) : BaseMcpTool() {
 
     private val logger
         get() = Logger.getLogger(javaClass.name)
@@ -39,7 +39,7 @@ class QueryByTimeTool @Inject constructor(
                     put("format", "date-time")
                     put(
                         "description",
-                        "Optional start date-time (RFC 3339 format). Only events with recurrences on or after this timestamp will be returned."
+                        "Optional start date-time of the query. Only events with recurrences on or after this timestamp will be returned."
                     )
                 })
                 put("end", buildJsonObject {
@@ -47,7 +47,7 @@ class QueryByTimeTool @Inject constructor(
                     put("format", "date-time")
                     put(
                         "description",
-                        "Optional end date-time (RFC 3339 format). Only events with recurrences before this timestamp will be returned."
+                        "Optional end date-time of the query. Only events with recurrences before this timestamp will be returned."
                     )
                 })
             },
@@ -58,7 +58,16 @@ class QueryByTimeTool @Inject constructor(
                 put("events", buildJsonObject {
                     put("type", "array")
                     put("items", buildJsonObject {
-                        simpleEventSchema()
+                        put("type", "object")
+                        put("properties", buildJsonObject {
+                            put("fileName", buildJsonObject {
+                                put("type", "string")
+                                put("description", "File name of the event (iCalendar)")
+                            })
+                            put("eventData", buildJsonObject {
+                                simpleEventSchema()
+                            })
+                        })
                     })
                 })
             },
@@ -66,49 +75,56 @@ class QueryByTimeTool @Inject constructor(
         )
     )
 
-    override suspend fun handler(connection: ClientConnection, request: CallToolRequest): CallToolResult {
-        val queryRequest = McpJson.decodeFromJsonElement<QueryByTimeRequest>(
+    override suspend fun handle(connection: ClientConnection, request: CallToolRequest): CallToolResult {
+        val input = McpJson.decodeFromJsonElement<InputData>(
             request.arguments ?: throw IllegalArgumentException("Request arguments are required")
         )
-        logger.info("QueryByTime: $queryRequest")
+        logger.info("QueryByTimeTool: $input")
 
         httpClientBuilder.buildFromConfig().use { client ->
             val url = Url(config.calendarUrl)
             val calendar = DavCalendar(client, url)
 
-            val start: Instant? = queryRequest.start?.let { Instant.parse(it) }
-            val end: Instant? = queryRequest.end?.let { Instant.parse(it) }
+            val start: Instant? = input.start?.let { Instant.parse(it) }
+            val end: Instant? = input.end?.let { Instant.parse(it) }
 
-            val events = mutableListOf<SimpleEvent>()
+            val events = mutableListOf<EventWithName>()
             calendar.calendarQuery(Component.VEVENT, start, end, setOf(CalDAV.CalendarData)) { response, relation ->
                 if (relation != Response.HrefRelation.MEMBER)
                     return@calendarQuery
 
                 val calendarData = response[CalendarData::class.java]?.iCalendar ?: return@calendarQuery
-                val event = simpleEventConverter.convert(response.hrefName(), calendarData)
+                val event = simpleEventConverter.fromICalendar(response.hrefName(), calendarData)
                 if (event != null)
-                    events += event
+                    events += EventWithName(
+                        fileName = response.hrefName(),
+                        eventData = event
+                    )
             }
             return CallToolResult(
                 content = listOf(TextContent(McpJson.encodeToString(events))),
                 isError = false,
-                structuredContent = McpJson.encodeToJsonElement(Result(events)).jsonObject
+                structuredContent = McpJson.encodeToJsonElement(OutputData(events)).jsonObject
             ).also { logger.info("Result: $it") }
         }
-
-        //return CallToolResult.error("Unknown error")
     }
 
 
     @Serializable
-    data class QueryByTimeRequest(
+    data class InputData(
         val start: String?,
         val end: String?
     )
 
     @Serializable
-    data class Result(
-        val events: List<SimpleEvent>
+    data class EventWithName(
+        val fileName: String,
+        val eventData: SimpleEvent
+    )
+
+    @Serializable
+    data class OutputData(
+        val events: List<EventWithName>
     ) {
 
     }

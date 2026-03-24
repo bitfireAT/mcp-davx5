@@ -20,6 +20,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSimpleConverter(): SimpleEventConverter = SimpleEventConverter()
+    fun provideSimpleEventConverter(): SimpleEventConverter = SimpleEventConverter()
 
 }
