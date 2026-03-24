@@ -1,9 +1,6 @@
 package at.bitfire.labs.davmcp.di
 
-import at.bitfire.labs.davmcp.tools.AddEventTool
-import at.bitfire.labs.davmcp.tools.McpTool
-import at.bitfire.labs.davmcp.tools.QueryEventsByTimeTool
-import at.bitfire.labs.davmcp.tools.WhenIsNowTool
+import at.bitfire.labs.davmcp.tools.*
 import dagger.Module
 import dagger.Provides
 import dagger.multibindings.IntoSet
@@ -14,6 +11,10 @@ object ToolsModule {
     @Provides
     @IntoSet
     fun provideAddEventTool(addEventTool: AddEventTool): McpTool = addEventTool
+
+    @Provides
+    @IntoSet
+    fun provideDeleteEventTool(deleteEventTool: DeleteEventTool): McpTool = deleteEventTool
 
     @Provides
     @IntoSet
