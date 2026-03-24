@@ -25,12 +25,14 @@ class McpServer @Inject constructor(
         ),
         options = ServerOptions(
             capabilities = ServerCapabilities(
-                tools = ServerCapabilities.Tools(listChanged = true),
+                resources = ServerCapabilities.Resources(),
+                tools = ServerCapabilities.Tools(),
             ),
         )
     )
 
     init {
+        // add tools
         tools.forEach { tool ->
             mcpServer.addTool(
                 tool.tool(),
@@ -50,4 +52,5 @@ class McpServer @Inject constructor(
             }
         }.start(wait = true)
     }
+
 }
