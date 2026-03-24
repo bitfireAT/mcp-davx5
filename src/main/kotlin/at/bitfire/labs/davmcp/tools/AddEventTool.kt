@@ -56,6 +56,7 @@ class AddEventTool @Inject constructor(
         description = "Adds an event to the user's calendar",
         inputSchema = ToolSchema(
             properties = buildJsonObject {
+                //simpleEventSchema()
                 put("title", buildJsonObject {
                     put("type", "string")
                     put("description", "Title of the event")

@@ -3,6 +3,7 @@ package at.bitfire.labs.davmcp.di
 import at.bitfire.labs.davmcp.tools.AddEventTool
 import at.bitfire.labs.davmcp.tools.McpTool
 import at.bitfire.labs.davmcp.tools.QueryByTimeTool
+import at.bitfire.labs.davmcp.tools.WhenIsNowTool
 import dagger.Module
 import dagger.Provides
 import dagger.multibindings.IntoSet
@@ -17,5 +18,9 @@ object ToolsModule {
     @Provides
     @IntoSet
     fun provideQueryByTimeTool(queryByTimeTool: QueryByTimeTool): McpTool = queryByTimeTool
+
+    @Provides
+    @IntoSet
+    fun provideWhenIsNowTool(whenIsNowTool: WhenIsNowTool): McpTool = whenIsNowTool
 
 }
