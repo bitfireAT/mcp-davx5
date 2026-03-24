@@ -25,7 +25,7 @@ class DeleteEventTool @Inject constructor(
 
     override fun tool() = Tool(
         name = "events.delete",
-        description = "Deletes an event from the user's calendar. WARNING: destructive action, only use with user's explicit consent.",
+        description = "Deletes an event from the user's calendar.",
         inputSchema = ToolSchema(
             properties = buildJsonObject {
                 put("fileName", buildJsonObject {
@@ -37,6 +37,11 @@ class DeleteEventTool @Inject constructor(
                 })
             },
             required = listOf("fileName")
+        ),
+        annotations = ToolAnnotations(
+            readOnlyHint = false,
+            destructiveHint = true,
+            idempotentHint = false
         )
     )
 

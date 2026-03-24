@@ -37,7 +37,12 @@ class AddEventTool @Inject constructor(
                     simpleEventSchema()
                 })
             },
-            required = listOf("event")
+            required = listOf("eventData")
+        ),
+        annotations = ToolAnnotations(
+            readOnlyHint = false,
+            destructiveHint = true,
+            idempotentHint = false
         )
     )
 
@@ -45,7 +50,7 @@ class AddEventTool @Inject constructor(
         val input = McpJson.decodeFromJsonElement<InputData>(
             request.arguments ?: throw IllegalArgumentException("Request arguments are required")
         )
-        logger.info("QueryByTimeTool: $input")
+        logger.info("AddEventTool: $input")
 
         val event = input.eventData
         val uid = UUID.randomUUID()

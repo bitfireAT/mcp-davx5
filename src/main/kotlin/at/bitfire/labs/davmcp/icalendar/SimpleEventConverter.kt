@@ -39,12 +39,16 @@ class SimpleEventConverter {
         )
     }
 
-    fun toICalendar(event: SimpleEvent, baseICalendar: String? = null): String {
-        if (event.iCalendar != null)
-            return event.iCalendar
+    fun toICalendar(
+        eventData: SimpleEvent,
+        originalICalendar: String? = null,
+        removeFieldsFromOriginal: List<String> = emptyList()
+    ): String {
+        if (eventData.iCalendar != null)
+            return eventData.iCalendar
 
-        val calendar = if (baseICalendar != null) {
-            CalendarBuilder().build(StringReader(baseICalendar))
+        val calendar = if (originalICalendar != null) {
+            CalendarBuilder().build(StringReader(originalICalendar))
         } else Calendar().apply {
             this += ImmutableVersion.VERSION_2_0
             this += mcpProdId
@@ -52,34 +56,50 @@ class SimpleEventConverter {
         }
         val vEvent = calendar.getComponent<VEvent>(Component.VEVENT).get()
 
-        // Random UID
-        vEvent += Uid(event.uid ?: UUID.randomUUID().toString())
+        // remove requested fields
+        for (field in removeFieldsFromOriginal)
+            for (propertyName in fieldToPropertyNames(field))
+                vEvent.removeAll<PropertyContainer>(propertyName)
 
-        // Handle start date/time
-        if (event.startDateTime != null)
-            vEvent += DtStart(event.startDateTime)
-        else if (event.startDate != null)
-            vEvent += DtStart(event.startDate)
+        // random UID
+        vEvent += Uid(eventData.uid ?: UUID.randomUUID().toString())
 
-        // Handle end date/time
-        if (event.endDateTime != null)
-            vEvent += DtEnd(event.endDateTime)
-        else if (event.endDate != null)
-            vEvent += DtEnd(event.endDate)
+        // handle start date/time
+        if (eventData.startDateTime != null)
+            vEvent += DtStart(eventData.startDateTime)
+        else if (eventData.startDate != null)
+            vEvent += DtStart(eventData.startDate)
 
-        // Add other properties
-        if (event.title != null)
-            vEvent += Summary(event.title)
-        if (event.location != null)
-            vEvent += Location(event.location)
-        if (event.description != null)
-            vEvent += Description(event.description)
+        // handle end date/time
+        if (eventData.endDateTime != null)
+            vEvent += DtEnd(eventData.endDateTime)
+        else if (eventData.endDate != null)
+            vEvent += DtEnd(eventData.endDate)
 
-        // Convert calendar to iCalendar string
+        // add/replace other properties
+        if (eventData.title != null)
+            vEvent += Summary(eventData.title)
+        if (eventData.location != null)
+            vEvent += Location(eventData.location)
+        if (eventData.description != null)
+            vEvent += Description(eventData.description)
+
+        // convert calendar to iCalendar string
         val writer = StringWriter()
         CalendarOutputter(false).output(calendar, writer)
         return writer.toString()
     }
+
+    private fun fieldToPropertyNames(field: String): Set<String> =
+        when (field) {
+            "uid" -> setOf(Property.UID)
+            "title" -> setOf(Property.SUMMARY)
+            "startDateTime", "startDate" -> setOf(Property.DTSTART)
+            "endDateTime", "endDate" -> setOf(Property.DTEND, Property.SUMMARY)
+            "location" -> setOf(Property.LOCATION)
+            "description" -> setOf(Property.DESCRIPTION)
+            else -> emptySet()
+        }
 
     private fun Temporal?.instantIfDateTime(): Instant? =
         if (TemporalAdapter.isDateTimePrecision(this))

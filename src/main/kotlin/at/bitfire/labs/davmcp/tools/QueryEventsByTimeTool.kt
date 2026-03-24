@@ -72,6 +72,10 @@ class QueryEventsByTimeTool @Inject constructor(
                 })
             },
             required = listOf("events")
+        ),
+        annotations = ToolAnnotations(
+            readOnlyHint = true,
+            destructiveHint = false
         )
     )
 

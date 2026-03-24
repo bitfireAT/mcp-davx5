@@ -26,7 +26,10 @@ data class SimpleEvent(
     val iCalendar: String?,
 )
 
-fun JsonObjectBuilder.simpleEventSchema() {
+fun JsonObjectBuilder.simpleEventSchema(
+    includeRequired: Boolean = true,
+    includeICalendar: Boolean = true
+) {
     put("type", "object")
     put("properties", buildJsonObject {
         put("uid", buildJsonObject {
@@ -65,12 +68,16 @@ fun JsonObjectBuilder.simpleEventSchema() {
             put("type", "string")
             put("description", "Event description (DESCRIPTION)")
         })
-        put("iCalendar", buildJsonObject {
-            put("type", "string")
-            put("description", "Original iCalendar data as string")
+
+        if (includeICalendar)
+            put("iCalendar", buildJsonObject {
+                put("type", "string")
+                put("description", "Original iCalendar data as string")
+            })
+    })
+
+    if (includeRequired)
+        put("required", buildJsonArray {
+            add("title")
         })
-    })
-    put("required", buildJsonArray {
-        add("title")
-    })
 }

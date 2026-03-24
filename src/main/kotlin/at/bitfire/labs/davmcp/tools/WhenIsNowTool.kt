@@ -34,6 +34,10 @@ class WhenIsNowTool @Inject constructor() : McpTool {
                 })
             },
             required = listOf("now")
+        ),
+        annotations = ToolAnnotations(
+            readOnlyHint = true,
+            destructiveHint = false
         )
     )
 

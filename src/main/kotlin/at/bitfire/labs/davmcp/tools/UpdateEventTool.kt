@@ -30,23 +30,40 @@ class UpdateEventTool @Inject constructor(
 
     override fun tool() = Tool(
         name = "events.update",
-        description = "Updates an existing event in the user's calendar. Only set the eventData fields" +
-                "that need to be updated (+ title). In order remove an eventData field, set it to an empty string. " +
-                "WARNING: Potentially destructive action, only use with user's explicit consent.",
+        description = "Updates an existing event in the user's calendar. " +
+                "If you already know the file name of the vent, you don't need to query/fetch the event first. " +
+                "Only the file name and field names to update/remove are known.",
         inputSchema = ToolSchema(
             properties = buildJsonObject {
                 put("fileName", buildJsonObject {
                     put("type", "string")
                     put(
                         "description",
-                        "File name of the event to be deleted, as returned by the `events.queryByTime` tool."
+                        "File name of the event to be updated, as returned by the `events.queryByTime` tool."
                     )
                 })
                 put("eventDataToUpdate", buildJsonObject {
-                    simpleEventSchema()
+                    put("description", "Event fields to update (only set fields that shall be updated).")
+                    simpleEventSchema(includeRequired = false, includeICalendar = false)
+                })
+                put("eventFieldsToRemove", buildJsonObject {
+                    put("type", "array")
+                    put("description", "Event fields to delete (only set fields that shall be deleted).")
+                    put("items", buildJsonObject {
+                        put("type", "string")
+                        put(
+                            "description",
+                            "Name of event field to delete. See eventDataToUpdate schema for valid field names."
+                        )
+                    })
                 })
             },
-            required = listOf("fileName", "eventDataToUpdate")
+            required = listOf("fileName", "eventDataToUpdate", "eventFieldsToRemove")
+        ),
+        annotations = ToolAnnotations(
+            readOnlyHint = false,
+            destructiveHint = true,
+            idempotentHint = false
         )
     )
 
@@ -54,11 +71,12 @@ class UpdateEventTool @Inject constructor(
         val input = McpJson.decodeFromJsonElement<InputData>(
             request.arguments ?: throw IllegalArgumentException("Request arguments are required")
         )
-        logger.info("QueryByTimeTool: $input")
+        logger.info("UpdateEventTool: $input")
 
         val collectionUrl = Url(config.calendarUrl)
         val eventUrl = URLBuilder(collectionUrl).appendPathSegments(input.fileName).build()
 
+        var newFileName: String? = null
         httpClientBuilder.buildFromConfig().use { client ->
             val davResource = DavResource(client, eventUrl)
 
@@ -66,22 +84,34 @@ class UpdateEventTool @Inject constructor(
             val originalICalendar = client.get(eventUrl).bodyAsText()
 
             // generate ICalendar with the updated fields, using the existing ICalendar as base
-            val updatedEvent = simpleConverter.toICalendar(input.eventDataToUpdate, originalICalendar)
+            val updatedEvent = simpleConverter.toICalendar(
+                eventData = input.eventDataToUpdate,
+                originalICalendar = originalICalendar,
+                removeFieldsFromOriginal = input.eventFieldsToRemove
+            )
 
             // upload updated event
-            davResource.put(io.ktor.http.content.TextContent(updatedEvent, iCalendarContentType)) {
+            davResource.put(io.ktor.http.content.TextContent(updatedEvent, iCalendarContentType)) { response ->
                 // success
+                val newLocation = response.headers[HttpHeaders.ContentLocation]
+                if (newLocation != null)
+                    newFileName = Url(newLocation).segments.lastOrNull()
             }
         }
 
-        return CallToolResult(content = listOf(TextContent("Success")))
+        val successMessage = if (newFileName != null)
+            "Success, file name of created event: $newFileName"
+        else
+            "Success, file name of created event unknown."
+        return CallToolResult(content = listOf(TextContent(successMessage)))
     }
 
 
     @Serializable
     private data class InputData(
         val fileName: String,
-        val eventDataToUpdate: SimpleEvent
+        val eventDataToUpdate: SimpleEvent,
+        val eventFieldsToRemove: List<String>
     )
 
 }
