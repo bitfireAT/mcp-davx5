@@ -2,10 +2,10 @@
 kotlin = "2.3.20"
 ksp = "2.3.6"
 ktor = "3.4.1"
-dagger = "2.56.2"
+dagger = "2.59.2"
 dav4jvm = "c63dd3b3f5"
 kotlinx-serialization = "1.10.0"
-ical4j = "4.2.3"
+ical4j = "4.2.4"
 mcp-kotlin-sdk = "0.9.0"
 
 [libraries]

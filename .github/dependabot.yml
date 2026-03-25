@@ -4,3 +4,11 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    labels:             # don't create "java" label (default for gradle ecosystem)
+      - "dependencies"
+    groups:
+      app-dependencies:
+        patterns: ["*"]
+    ignore:
+      # dependencies without semantic versioning
+      - dependency-name: "com.github.bitfireat:dav4jvm"
