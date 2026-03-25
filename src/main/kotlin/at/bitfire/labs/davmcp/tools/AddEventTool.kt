@@ -68,16 +68,16 @@ class AddEventTool @Inject constructor(
                 contentType = iCalendarContentType
             )
 
-            var newFileName: String? = null
+            var newFileName: String = fileName
             calendar.put(content) { response ->
                 // success
                 val newLocation = response.headers[HttpHeaders.ContentLocation]
                 if (newLocation != null)
-                    newFileName = Url(newLocation).segments.lastOrNull()
+                    newFileName = Url(newLocation).segments.last()
             }
-        }
 
-        return CallToolResult(content = listOf(TextContent("Success")))
+            return CallToolResult(content = listOf(TextContent("Success, file name of created event: $newFileName")))
+        }
     }
 
 
