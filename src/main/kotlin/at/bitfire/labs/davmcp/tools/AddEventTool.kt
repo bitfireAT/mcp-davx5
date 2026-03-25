@@ -54,18 +54,12 @@ class AddEventTool @Inject constructor(
 
         val event = input.eventData
         val uid = UUID.randomUUID()
-
+        val fileName = "$uid.ics"
         val iCalendar = simpleConverter.toICalendar(event)
-        uploadToCollection("$uid.ics", iCalendar)
 
-        return CallToolResult(content = listOf(TextContent("Success")))
-    }
-
-
-    private suspend fun uploadToCollection(memberName: String, iCalendar: String) {
         httpClientBuilder.buildFromConfig().use { client ->
             val collectionUrl = Url(config.calendarUrl)
-            val url = URLBuilder(collectionUrl).appendPathSegments(memberName).build()
+            val url = URLBuilder(collectionUrl).appendPathSegments(fileName).build()
             logger.log(Level.INFO, "Uploading iCalendar to $url", iCalendar)
 
             val calendar = DavCalendar(client, url)
@@ -73,9 +67,16 @@ class AddEventTool @Inject constructor(
                 text = iCalendar,
                 contentType = iCalendarContentType
             )
+
+            var newFileName: String = fileName
             calendar.put(content) { response ->
                 // success
+                val newLocation = response.headers[HttpHeaders.ContentLocation]
+                if (newLocation != null)
+                    newFileName = Url(newLocation).segments.last()
             }
+
+            return CallToolResult(content = listOf(TextContent("Success, file name of created event: $newFileName")))
         }
     }
 

@@ -76,7 +76,6 @@ class UpdateEventTool @Inject constructor(
         val collectionUrl = Url(config.calendarUrl)
         val eventUrl = URLBuilder(collectionUrl).appendPathSegments(input.fileName).build()
 
-        var newFileName: String? = null
         httpClientBuilder.buildFromConfig().use { client ->
             val davResource = DavResource(client, eventUrl)
 
@@ -93,17 +92,10 @@ class UpdateEventTool @Inject constructor(
             // upload updated event
             davResource.put(io.ktor.http.content.TextContent(updatedEvent, iCalendarContentType)) { response ->
                 // success
-                val newLocation = response.headers[HttpHeaders.ContentLocation]
-                if (newLocation != null)
-                    newFileName = Url(newLocation).segments.lastOrNull()
             }
         }
 
-        val successMessage = if (newFileName != null)
-            "Success, file name of created event: $newFileName"
-        else
-            "Success, file name of created event unknown."
-        return CallToolResult(content = listOf(TextContent(successMessage)))
+        return CallToolResult(content = listOf(TextContent("Success")))
     }
 
 
