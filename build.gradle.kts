@@ -1,8 +1,9 @@
 plugins {
+    application
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
-    application
+    alias(libs.plugins.sqldelight)
 }
 
 group = "at.bitfire.labs"
@@ -21,12 +22,21 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.ical4j)
     implementation(libs.dagger)
+    implementation(libs.sqldelight.sqlite.driver)
     ksp(libs.dagger.compiler)
     testImplementation(kotlin("test"))
 }
 
 kotlin {
     jvmToolchain(21)
+}
+
+sqldelight {
+    databases {
+        register("Database") {
+            packageName.set("at.bitfire.labs.davmcp.db")
+        }
+    }
 }
 
 tasks.test {

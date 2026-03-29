@@ -1,0 +1,9 @@
+CREATE TABLE accessToken (
+    id INTEGER PRIMARY KEY NOT NULL,
+    userId INTEGER NOT NULL REFERENCES user(id),
+    token TEXT NOT NULL,
+    expires INTEGER DEFAULT NULL
+);
+
+CREATE INDEX accessToken_userId ON accessToken(userId);
+CREATE INDEX accessToken_token ON accessToken(token);
