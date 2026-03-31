@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.ical4j)
     implementation(libs.dagger)
     implementation(libs.sqldelight.sqlite.driver)
+    implementation(libs.slf4j.jdk14)
     ksp(libs.dagger.compiler)
     testImplementation(kotlin("test"))
 }

@@ -20,14 +20,16 @@ import io.modelcontextprotocol.kotlin.sdk.server.StreamableHttpServerTransport
 import io.modelcontextprotocol.kotlin.sdk.types.Implementation
 import io.modelcontextprotocol.kotlin.sdk.types.McpJson
 import io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
+import java.util.logging.Logger
 import javax.inject.Inject
-
-private const val MCP_SESSION_ID_HEADER = "mcp-session-id"
 
 class McpServer @Inject constructor(
     private val tools: Set<@JvmSuppressWildcards McpTool>,
     private val userAuthenticator: UserAuthenticator
 ) {
+
+    private val logger
+        get() = Logger.getLogger(javaClass.name)
 
     fun start(port: Int) {
         println("Running MCP server")
@@ -117,6 +119,7 @@ class McpServer @Inject constructor(
         }
 
         val user = call.principal<User>()!!
+        logger.fine("Authenticated user: ${user.email}")
 
         val transport = StreamableHttpServerTransport(
             StreamableHttpServerTransport.Configuration(enableJsonResponse = true)
@@ -135,6 +138,13 @@ class McpServer @Inject constructor(
         server.createSession(transport)
 
         return transport
+    }
+
+
+    companion object {
+
+        private const val MCP_SESSION_ID_HEADER = "mcp-session-id"
+
     }
 
 }

@@ -9,8 +9,12 @@ class UserAuthenticator @Inject constructor(
 ) {
 
     fun authorizeUser(token: String): User {
-        val userId = database.accessTokenQueries.getUserIdByToken(token).executeAsOne()
+        val userId = database.accessTokenQueries.getUserIdByToken(token).executeAsOneOrNull()
+            ?: throw UnauthorizedUserException(token)
         return database.userQueries.getById(userId).executeAsOne()
     }
+
+
+    class UnauthorizedUserException(token: String) : Exception("No user found for token: $token")
 
 }
