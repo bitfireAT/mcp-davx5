@@ -23,4 +23,4 @@ jobs:
       uses: gradle/actions/setup-gradle@v5
 
     - name: Run Gradle build
-      run: ./gradlew build
+      run: ./gradlew :server:build
