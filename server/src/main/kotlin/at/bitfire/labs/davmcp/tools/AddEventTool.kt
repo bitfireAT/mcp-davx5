@@ -56,7 +56,7 @@ class AddEventTool @Inject constructor(
         val fileName = "$uid.ics"
         val iCalendar = simpleConverter.toICalendar(event)
 
-        val service = database.serviceQueries.getByUserId(user.id).executeAsOne()
+        val service = getCalDavService(database, user)
         val collection = resolveCollection(database, service, input.collectionId)
         val collectionUrl = Url(collection.url)
 

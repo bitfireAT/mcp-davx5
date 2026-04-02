@@ -72,7 +72,7 @@ class UpdateEventTool @Inject constructor(
         )
         logToolCall("UpdateEventTool", user, input)
 
-        val service = database.serviceQueries.getByUserId(user.id).executeAsOne()
+        val service = getCalDavService(database, user)
         val collection = resolveCollection(database, service, input.collectionId)
         val collectionUrl = Url(collection.url)
         val eventUrl = URLBuilder(collectionUrl).appendPathSegments(input.fileName).build()

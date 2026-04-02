@@ -18,6 +18,16 @@ abstract class BaseMcpTool : McpTool {
         get() = Logger.getLogger(javaClass.name)
 
     /**
+     * Gets the CalDAV service for the given user.
+     *
+     * @param database database instance used to query the service
+     * @param user the user whose service should be retrieved
+     * @return the [Service] associated with the user
+     */
+    protected fun getCalDavService(database: Database, user: User): Service =
+        database.serviceQueries.getByUserId(user.id).executeAsOne()
+
+    /**
      * Logs a tool call with the given input data.
      *
      * @param toolName the name of the tool being called

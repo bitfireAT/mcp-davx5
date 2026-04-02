@@ -61,7 +61,7 @@ class ListCollectionsTool @Inject constructor(
 
     override suspend fun handle(connection: ClientConnection, user: User, request: CallToolRequest): CallToolResult {
         logToolCall("ListCollectionsTool", user, null)
-        val service = database.serviceQueries.getByUserId(user.id).executeAsOne()
+        val service = getCalDavService(database, user)
         val collections = database.collectionQueries.getByService(service.id).executeAsList()
 
         val result = collections.map { col ->

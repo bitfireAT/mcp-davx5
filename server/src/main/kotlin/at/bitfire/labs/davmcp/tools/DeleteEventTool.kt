@@ -48,7 +48,7 @@ class DeleteEventTool @Inject constructor(
         )
         logToolCall("DeleteEventTool", user, input)
 
-        val service = database.serviceQueries.getByUserId(user.id).executeAsOne()
+        val service = getCalDavService(database, user)
         val collection = resolveCollection(database, service, input.collectionId)
         val collectionUrl = Url(collection.url)
 
