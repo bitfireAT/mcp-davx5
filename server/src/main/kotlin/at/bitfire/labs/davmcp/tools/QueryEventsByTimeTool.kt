@@ -53,6 +53,13 @@ class QueryEventsByTimeTool @Inject constructor(
                         "Optional end date-time of the query. Only events with recurrences before this timestamp will be returned."
                     )
                 })
+                put("collectionId", buildJsonObject {
+                    put("type", "number")
+                    put(
+                        "description",
+                        "Optional ID of the calendar collection to query. Defaults to the user's default calendar. Use collections.list to discover available collections."
+                    )
+                })
             },
             required = listOf()
         ),
@@ -89,7 +96,7 @@ class QueryEventsByTimeTool @Inject constructor(
         logger.info("QueryByTimeTool: $input")
 
         val service = database.serviceQueries.getByUserId(user.id).executeAsOne()
-        val collection = database.collectionQueries.getByService(service.id).executeAsOne()
+        val collection = resolveCollection(database, service, input.collectionId)
         val collectionUrl = Url(collection.url)
 
         httpClientBuilder.buildFromService(service).use { client ->
@@ -122,6 +129,7 @@ class QueryEventsByTimeTool @Inject constructor(
 
     @Serializable
     data class InputData(
+        val collectionId: Long? = null,
         val start: String?,
         val end: String?
     )

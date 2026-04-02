@@ -58,6 +58,13 @@ class UpdateEventTool @Inject constructor(
                         )
                     })
                 })
+                put("collectionId", buildJsonObject {
+                    put("type", "number")
+                    put(
+                        "description",
+                        "Optional ID of the calendar collection the event belongs to. Defaults to the user's default calendar. Use collections.list to discover available collections."
+                    )
+                })
             },
             required = listOf("fileName", "eventDataToUpdate", "eventFieldsToRemove")
         ),
@@ -75,7 +82,7 @@ class UpdateEventTool @Inject constructor(
         logger.info("UpdateEventTool: $input")
 
         val service = database.serviceQueries.getByUserId(user.id).executeAsOne()
-        val collection = database.collectionQueries.getByService(service.id).executeAsOne()
+        val collection = resolveCollection(database, service, input.collectionId)
         val collectionUrl = Url(collection.url)
         val eventUrl = URLBuilder(collectionUrl).appendPathSegments(input.fileName).build()
 
@@ -104,6 +111,7 @@ class UpdateEventTool @Inject constructor(
 
     @Serializable
     private data class InputData(
+        val collectionId: Long? = null,
         val fileName: String,
         val eventDataToUpdate: SimpleEvent,
         val eventFieldsToRemove: List<String>

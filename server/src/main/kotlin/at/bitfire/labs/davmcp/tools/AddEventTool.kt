@@ -14,6 +14,7 @@ import io.modelcontextprotocol.kotlin.sdk.types.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.put
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -37,6 +38,13 @@ class AddEventTool @Inject constructor(
                 put("eventData", buildJsonObject {
                     simpleEventSchema()
                 })
+                put("collectionId", buildJsonObject {
+                    put("type", "number")
+                    put(
+                        "description",
+                        "Optional ID of the calendar collection to add the event to. Defaults to the user's default calendar. Use collections.list to discover available collections."
+                    )
+                })
             },
             required = listOf("eventData")
         ),
@@ -59,7 +67,7 @@ class AddEventTool @Inject constructor(
         val iCalendar = simpleConverter.toICalendar(event)
 
         val service = database.serviceQueries.getByUserId(user.id).executeAsOne()
-        val collection = database.collectionQueries.getByService(service.id).executeAsOne()
+        val collection = resolveCollection(database, service, input.collectionId)
         val collectionUrl = Url(collection.url)
 
         httpClientBuilder.buildFromService(service).use { client ->
@@ -94,6 +102,7 @@ class AddEventTool @Inject constructor(
 
     @Serializable
     private data class InputData(
+        val collectionId: Long? = null,
         val eventData: SimpleEvent
     )
 

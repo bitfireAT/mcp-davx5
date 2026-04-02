@@ -18,6 +18,10 @@ object ToolsModule {
 
     @Provides
     @IntoSet
+    fun provideListCollectionsTool(listCollectionsTool: ListCollectionsTool): McpTool = listCollectionsTool
+
+    @Provides
+    @IntoSet
     fun provideQueryByTimeTool(queryEventsByTimeTool: QueryEventsByTimeTool): McpTool = queryEventsByTimeTool
 
     @Provides
