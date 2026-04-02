@@ -38,6 +38,7 @@ class SetDefaultCalendarTool @Inject constructor(
         val input = McpJson.decodeFromJsonElement<InputData>(
             request.arguments ?: throw IllegalArgumentException("Request arguments are required")
         )
+        logToolCall("SetDefaultCalendarTool", user, input)
 
         // Verify the collection exists and belongs to this service
         val collection = database.collectionQueries.getByUserAndId(user.id, input.collectionId).executeAsOneOrNull()

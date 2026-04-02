@@ -10,8 +10,23 @@ import io.modelcontextprotocol.kotlin.sdk.types.CallToolResult
 import io.modelcontextprotocol.kotlin.sdk.types.TextContent
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.util.logging.Logger
 
 abstract class BaseMcpTool : McpTool {
+
+    protected val logger: Logger
+        get() = Logger.getLogger(javaClass.name)
+
+    /**
+     * Logs a tool call with the given input data.
+     *
+     * @param toolName the name of the tool being called
+     * @param user the authenticated user calling the tool
+     * @param input the input data to log (can be null for tools with no input)
+     */
+    protected fun logToolCall(toolName: String, user: User, input: Any?) {
+        logger.info("MCP tool $toolName called by ${user.email}: ${input ?: "(no input)"}")
+    }
 
     /**
      * Resolves the calendar collection to use for an operation.

@@ -19,7 +19,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import net.fortuna.ical4j.model.Component
 import java.time.Instant
-import java.util.logging.Logger
 import javax.inject.Inject
 
 class QueryEventsByTimeTool @Inject constructor(
@@ -27,9 +26,6 @@ class QueryEventsByTimeTool @Inject constructor(
     private val httpClientBuilder: HttpClientBuilder,
     private val simpleEventConverter: SimpleEventConverter
 ) : BaseMcpTool() {
-
-    private val logger
-        get() = Logger.getLogger(javaClass.name)
 
     override fun tool() = Tool(
         name = "events.queryByTime",
@@ -86,7 +82,7 @@ class QueryEventsByTimeTool @Inject constructor(
         val input = McpJson.decodeFromJsonElement<InputData>(
             request.arguments ?: throw IllegalArgumentException("Request arguments are required")
         )
-        logger.info("QueryByTimeTool: $input")
+        logToolCall("QueryEventsByTimeTool", user, input)
 
         val service = database.serviceQueries.getByUserId(user.id).executeAsOne()
         val collection = resolveCollection(database, service, input.collectionId)

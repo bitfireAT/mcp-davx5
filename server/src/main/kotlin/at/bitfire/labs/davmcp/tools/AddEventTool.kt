@@ -17,7 +17,6 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import java.util.*
 import java.util.logging.Level
-import java.util.logging.Logger
 import javax.inject.Inject
 import io.ktor.http.content.TextContent as KtorTextContent
 
@@ -26,9 +25,6 @@ class AddEventTool @Inject constructor(
     private val httpClientBuilder: HttpClientBuilder,
     private val simpleConverter: SimpleEventConverter
 ) : BaseMcpTool() {
-
-    private val logger
-        get() = Logger.getLogger(javaClass.name)
 
     override fun tool() = Tool(
         name = "events.add",
@@ -53,7 +49,7 @@ class AddEventTool @Inject constructor(
         val input = McpJson.decodeFromJsonElement<InputData>(
             request.arguments ?: throw IllegalArgumentException("Request arguments are required")
         )
-        logger.info("AddEventTool: $input")
+        logToolCall("AddEventTool", user, input)
 
         val event = input.eventData
         val uid = UUID.randomUUID()

@@ -12,16 +12,12 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.put
-import java.util.logging.Logger
 import javax.inject.Inject
 
 class DeleteEventTool @Inject constructor(
     private val database: Database,
     private val httpClientBuilder: HttpClientBuilder
 ) : BaseMcpTool() {
-
-    private val logger
-        get() = Logger.getLogger(javaClass.name)
 
     override fun tool() = Tool(
         name = "events.delete",
@@ -50,7 +46,7 @@ class DeleteEventTool @Inject constructor(
         val input = McpJson.decodeFromJsonElement<InputData>(
             request.arguments ?: throw IllegalArgumentException("Request arguments are required")
         )
-        logger.info("QueryByTimeTool: $input")
+        logToolCall("DeleteEventTool", user, input)
 
         val service = database.serviceQueries.getByUserId(user.id).executeAsOne()
         val collection = resolveCollection(database, service, input.collectionId)
