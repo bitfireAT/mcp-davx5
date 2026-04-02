@@ -1,0 +1,11 @@
+services:
+  davx5-mcp:
+    build: .
+    ports:
+      - 3000:3000
+    volumes:
+      - data:/app/data
+
+volumes:
+  data:
+    name: davx5-mcp-data
