@@ -33,7 +33,7 @@ class McpServer @Inject constructor(
 
     fun start(port: Int) {
         println("Running MCP server")
-        embeddedServer(CIO, host = "127.0.0.1", port = port) {
+        embeddedServer(CIO, host = "0.0.0.0", port = port) {
             install(SSE)
             install(ContentNegotiation) {
                 json(McpJson)
