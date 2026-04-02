@@ -53,8 +53,8 @@ abstract class BaseMcpTool : McpTool {
                 ?: database.serviceQueries.getDefaultCollectionId(service.id).executeAsOneOrNull()?.defaultCollectionId
                 ?: throw IllegalStateException("No default calendar defined. Ask the user to set a default calendar and then try again.")
 
-        // Always verify the collection belongs to the user
-        return database.collectionQueries.getByUserAndId(service.userId, collectionId).executeAsOneOrNull()
+        // Always verify the collection belongs to the service (which belongs to the authenticated user)
+        return database.collectionQueries.getByServiceAndId(service.id, collectionId).executeAsOneOrNull()
             ?: throw IllegalArgumentException("Collection with id=$collectionId not found")
     }
 

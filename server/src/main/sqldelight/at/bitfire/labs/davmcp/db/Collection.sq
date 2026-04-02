@@ -10,7 +10,7 @@ CREATE INDEX collection_serviceId ON collection(serviceId);
 getByService:
 SELECT * FROM collection WHERE serviceId=?;
 
-getByUserAndId:
+getByServiceAndId:
 SELECT c.* FROM collection c
 JOIN service s ON c.serviceId = s.id
 WHERE c.id = ?1 AND s.userId = ?2;

@@ -40,12 +40,13 @@ class SetDefaultCalendarTool @Inject constructor(
         )
         logToolCall("SetDefaultCalendarTool", user, input)
 
-        // Verify the collection exists and belongs to this service
-        val collection = database.collectionQueries.getByUserAndId(user.id, input.collectionId).executeAsOneOrNull()
+        // Verify the collection exists and belongs to the service that belongs to the authenticated user
+        val service = database.serviceQueries.getByUserId(user.id).executeAsOne()
+        val collection =
+            database.collectionQueries.getByServiceAndId(service.id, input.collectionId).executeAsOneOrNull()
             ?: throw IllegalArgumentException("Collection with id=${input.collectionId} not found")
 
         // Update the default collection
-        val service = database.serviceQueries.getByUserId(user.id).executeAsOne()
         database.serviceQueries.setDefaultCollection(collection.id, service.id)
 
         return CallToolResult(
