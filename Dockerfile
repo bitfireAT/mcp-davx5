@@ -20,5 +20,6 @@ RUN gradle fatJar --no-daemon
 FROM amazoncorretto:22 AS runtime
 EXPOSE 3000
 RUN mkdir /app
+WORKDIR /app
 COPY --from=build /home/gradle/src/server/build/libs/*.jar /app/server.jar
 ENTRYPOINT ["java","-jar","/app/server.jar"]
