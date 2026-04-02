@@ -1,11 +1,14 @@
 CREATE TABLE collection (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    serviceId INTEGER NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+    serviceId INTEGER NOT NULL REFERENCES service(id) ON DELETE CASCADE,
     url TEXT NOT NULL,
     displayName TEXT DEFAULT NULL
 );
 
 CREATE INDEX collection_serviceId ON collection(serviceId);
+
+getById:
+SELECT * FROM collection WHERE id=?;
 
 getByService:
 SELECT * FROM collection WHERE serviceId=?;

@@ -34,6 +34,13 @@ class DeleteEventTool @Inject constructor(
                         "File name of the event to be deleted, as returned by the `events.queryByTime` tool."
                     )
                 })
+                put("collectionId", buildJsonObject {
+                    put("type", "number")
+                    put(
+                        "description",
+                        "Optional ID of the calendar collection the event belongs to. Defaults to the user's default calendar. Use collections.list to discover available collections."
+                    )
+                })
             },
             required = listOf("fileName")
         ),
@@ -51,7 +58,7 @@ class DeleteEventTool @Inject constructor(
         logger.info("QueryByTimeTool: $input")
 
         val service = database.serviceQueries.getByUserId(user.id).executeAsOne()
-        val collection = database.collectionQueries.getByService(service.id).executeAsOne()
+        val collection = resolveCollection(database, service, input.collectionId)
         val collectionUrl = Url(collection.url)
 
         httpClientBuilder.buildFromService(service).use { client ->
@@ -70,7 +77,8 @@ class DeleteEventTool @Inject constructor(
 
     @Serializable
     private data class InputData(
-        val fileName: String
+        val fileName: String,
+        val collectionId: Long? = null
     )
 
 }
