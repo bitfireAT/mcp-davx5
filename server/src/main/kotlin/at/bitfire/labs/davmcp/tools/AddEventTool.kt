@@ -8,13 +8,13 @@ import at.bitfire.labs.davmcp.icalendar.SimpleEvent
 import at.bitfire.labs.davmcp.icalendar.SimpleEventConverter
 import at.bitfire.labs.davmcp.icalendar.iCalendarContentType
 import at.bitfire.labs.davmcp.icalendar.simpleEventSchema
+import collectionIdSchema
 import io.ktor.http.*
 import io.modelcontextprotocol.kotlin.sdk.server.ClientConnection
 import io.modelcontextprotocol.kotlin.sdk.types.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.put
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -35,13 +35,7 @@ class AddEventTool @Inject constructor(
         description = "Adds a new event to the user's calendar.",
         inputSchema = ToolSchema(
             properties = buildJsonObject {
-                put("collectionId", buildJsonObject {
-                    put("type", "number")
-                    put(
-                        "description",
-                        "Optional ID of the calendar collection to add the event to. Defaults to the user's default calendar. Use collections.list to discover available collections."
-                    )
-                })
+                collectionIdSchema()
                 put("eventData", buildJsonObject {
                     simpleEventSchema()
                 })

@@ -4,6 +4,7 @@ import at.bitfire.dav4jvm.ktor.DavResource
 import at.bitfire.labs.davmcp.HttpClientBuilder
 import at.bitfire.labs.davmcp.db.Database
 import at.bitfire.labs.davmcp.db.User
+import collectionIdSchema
 import io.ktor.http.*
 import io.modelcontextprotocol.kotlin.sdk.server.ClientConnection
 import io.modelcontextprotocol.kotlin.sdk.types.*
@@ -27,13 +28,7 @@ class DeleteEventTool @Inject constructor(
         description = "Deletes an event from the user's calendar.",
         inputSchema = ToolSchema(
             properties = buildJsonObject {
-                put("collectionId", buildJsonObject {
-                    put("type", "number")
-                    put(
-                        "description",
-                        "Optional ID of the calendar collection the event belongs to. Defaults to the user's default calendar. Use collections.list to discover available collections."
-                    )
-                })
+                collectionIdSchema()
                 put("fileName", buildJsonObject {
                     put("type", "string")
                     put(

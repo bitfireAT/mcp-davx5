@@ -30,7 +30,7 @@ abstract class BaseMcpTool : McpTool {
      * @throws IllegalStateException if no collection exists for the service at all
      */
     protected fun resolveCollection(database: Database, service: Service, specificId: Long?): Collection {
-        // speficic collection requested
+        // specific collection requested
         if (specificId != null)
             return database.collectionQueries.getById(specificId).executeAsOneOrNull()
                 ?: throw IllegalArgumentException("Collection with id=$specificId not found")

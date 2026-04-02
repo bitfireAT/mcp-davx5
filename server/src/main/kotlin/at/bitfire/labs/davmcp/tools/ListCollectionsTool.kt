@@ -15,9 +15,8 @@ class ListCollectionsTool @Inject constructor(
 
     override fun tool() = Tool(
         name = "collections.list",
-        description = "Lists all calendar collections available to the user, " +
-                "including which one is configured as the default. " +
-                "Use the collection id to target a specific calendar in event tools.",
+        description = "Lists all calendar collections (including calendar ID field). " +
+                "Use the collection ID that is returned by this tool to target a specific calendar in other event tools.",
         inputSchema = ToolSchema(
             properties = buildJsonObject {},
             required = listOf()

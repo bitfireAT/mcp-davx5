@@ -8,6 +8,7 @@ import at.bitfire.labs.davmcp.icalendar.SimpleEvent
 import at.bitfire.labs.davmcp.icalendar.SimpleEventConverter
 import at.bitfire.labs.davmcp.icalendar.iCalendarContentType
 import at.bitfire.labs.davmcp.icalendar.simpleEventSchema
+import collectionIdSchema
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -36,13 +37,7 @@ class UpdateEventTool @Inject constructor(
                 "Only the file name and field names to update/remove are known.",
         inputSchema = ToolSchema(
             properties = buildJsonObject {
-                put("collectionId", buildJsonObject {
-                    put("type", "number")
-                    put(
-                        "description",
-                        "Optional ID of the calendar collection the event belongs to. Defaults to the user's default calendar. Use collections.list to discover available collections."
-                    )
-                })
+                collectionIdSchema()
                 put("fileName", buildJsonObject {
                     put("type", "string")
                     put(
@@ -100,7 +95,7 @@ class UpdateEventTool @Inject constructor(
             )
 
             // upload updated event
-            davResource.put(io.ktor.http.content.TextContent(updatedEvent, iCalendarContentType)) { response ->
+            davResource.put(io.ktor.http.content.TextContent(updatedEvent, iCalendarContentType)) { _ ->
                 // success
             }
         }

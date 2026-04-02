@@ -5,13 +5,13 @@ import at.bitfire.dav4jvm.ktor.Response
 import at.bitfire.dav4jvm.property.caldav.CalDAV
 import at.bitfire.dav4jvm.property.caldav.CalendarData
 import at.bitfire.labs.davmcp.HttpClientBuilder
-import at.bitfire.labs.davmcp.ServerConfig
 import at.bitfire.labs.davmcp.db.Database
 import at.bitfire.labs.davmcp.db.User
 import at.bitfire.labs.davmcp.icalendar.SimpleEvent
 import at.bitfire.labs.davmcp.icalendar.SimpleEventConverter
 import at.bitfire.labs.davmcp.icalendar.simpleEventSchema
 import at.bitfire.labs.davmcp.json.McpJson
+import collectionIdSchema
 import io.ktor.http.*
 import io.modelcontextprotocol.kotlin.sdk.server.ClientConnection
 import io.modelcontextprotocol.kotlin.sdk.types.*
@@ -23,7 +23,6 @@ import java.util.logging.Logger
 import javax.inject.Inject
 
 class QueryEventsByTimeTool @Inject constructor(
-    private val config: ServerConfig,
     private val database: Database,
     private val httpClientBuilder: HttpClientBuilder,
     private val simpleEventConverter: SimpleEventConverter
@@ -37,13 +36,7 @@ class QueryEventsByTimeTool @Inject constructor(
         description = "Query events by time range",
         inputSchema = ToolSchema(
             properties = buildJsonObject {
-                put("collectionId", buildJsonObject {
-                    put("type", "number")
-                    put(
-                        "description",
-                        "Optional ID of the calendar collection to query. Defaults to the user's default calendar. Use collections.list to discover available collections."
-                    )
-                })
+                collectionIdSchema()
                 put("start", buildJsonObject {
                     put("type", "string")
                     put("format", "date-time")
