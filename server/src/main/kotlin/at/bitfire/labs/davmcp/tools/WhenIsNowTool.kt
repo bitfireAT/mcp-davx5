@@ -14,13 +14,9 @@ import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.put
 import java.time.Instant
-import java.util.logging.Logger
 import javax.inject.Inject
 
 class WhenIsNowTool @Inject constructor() : BaseMcpTool() {
-
-    private val logger
-        get() = Logger.getLogger(javaClass.name)
 
     override fun tool() = Tool(
         name = "timetools.now",
@@ -47,6 +43,7 @@ class WhenIsNowTool @Inject constructor() : BaseMcpTool() {
         user: User,
         request: CallToolRequest
     ): CallToolResult {
+        logToolCall("WhenIsNowTool", user, null)
         val result = Result(
             now = Instant.now()
         )
