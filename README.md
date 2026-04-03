@@ -4,7 +4,12 @@ An experimental [Model Context Protocol (MCP)](https://modelcontextprotocol.org/
 
 ## ⚠️ Experimental Status
 
-This project is **experimental** and under active development. The API and functionality may change without notice.
+>[!WARNING]
+>This project is **experimental** and under active development. The API and functionality may change without notice.
+>There are **no automatic database migrations**.
+
+>[!CAUTION]
+>Not intended for production use. Only use in test environments.
 
 ## Overview
 
