@@ -1,11 +1,13 @@
 name: Build and Publish Multi-Arch Image
 
 on:
-  push:
-    branches: [ "main" ]
-    tags: [ 'v*.*.*' ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, tag, or commit SHA to build'
+        required: true
+        default: 'main'
+        type: string
 
 env:
   REGISTRY: ghcr.io
@@ -22,6 +24,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref }}
 
       # Set up QEMU for multi-platform support (required for arm64)
       - name: Set up QEMU
