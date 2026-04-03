@@ -47,7 +47,7 @@ class SetDefaultCalendarTool @Inject constructor(
             ?: throw IllegalArgumentException("Collection with id=${input.collectionId} not found")
 
         // Update the default collection
-        database.serviceQueries.setDefaultCollection(collection.id, service.id)
+        database.userQueries.setDefaultCalendar(collection.id, user.id)
 
         return CallToolResult(
             content = listOf(

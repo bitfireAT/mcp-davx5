@@ -69,7 +69,7 @@ class ListCollectionsTool @Inject constructor(
                 id = col.id,
                 displayName = col.displayName,
                 url = col.url,
-                isDefault = col.id == service.defaultCollectionId
+                isDefault = col.id == user.defaultCalendarId
             )
         }
 

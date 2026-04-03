@@ -43,7 +43,7 @@ abstract class BaseMcpTool : McpTool {
      *
      * Resolution order:
      * 1. If [specificId] is provided, that specific collection is used.
-     * 2. If the service has a [Service.defaultCollectionId] configured, that collection is used.
+     * 2. If the user has a [User.defaultCalendarId] configured, that collection is used.
      * 3. Otherwise, silently falls back to the first collection found for the service,
      *    assuming it is the only one.
      *
@@ -60,7 +60,7 @@ abstract class BaseMcpTool : McpTool {
             // specific ID
             specificId
             // or default ID, if defined
-                ?: database.serviceQueries.getDefaultCollectionId(service.id).executeAsOneOrNull()?.defaultCollectionId
+                ?: database.userQueries.getDefaultCalendarId(service.userId).executeAsOneOrNull()?.defaultCalendarId
                 ?: throw IllegalStateException("No default calendar defined. Ask the user to set a default calendar and then try again.")
 
         // Always verify the collection belongs to the service (which belongs to the authenticated user)
