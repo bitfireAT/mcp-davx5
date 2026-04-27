@@ -4,14 +4,15 @@ An experimental [Model Context Protocol (MCP)](https://modelcontextprotocol.org/
 
 It allows AI models to connect to CalDAV (in the future maybe also CardDAV and WebDAV) servers and run various queries
 like "list events" or "create event". For you as a user of such a model, it means that you can **use natural
-language to manage your calendars**, for instance: "Add an event tomorrow from 12 am to 14 am: 'Some Appointment'",
+language to manage your calendars**, for instance: "Add a two-hour event tomorrow from 1 pm with title: 'Some
+Appointment'",
 and the AI model can directly add the event to the calendar over CalDAV.
 
 The CalDAV server credentials stay in davmcp all the time and are not exposed to the AI model.
 
 The [Model Context Protocol](https://modelcontextprotocol.org/) is a protocol for AI agents to interact with external
-tools and services
-in a structured way.
+tools and services in a
+structured way.
 
 ## ⚠️ Experimental Status
 
@@ -22,7 +23,7 @@ in a structured way.
 > [!CAUTION]
 > Not intended for production use. Only use in test environments.
 
-There's no UI for configuration yet. You'll have to add database entries manually to make it work (see below).
+There's no UI for configuration yet. You'll have to add database entries manually to make it work.
 
 ## What it does
 
@@ -45,24 +46,28 @@ These are the steps to manually compile and run davmcp. You can also [use Docker
    the database since there's no configuration UI (yet). `npx` (NodeJS package manager) is needed if you want to run
    the MCP Inspector.
 2. Check out or download davmcp.
-3. **Build the server**:
-   ```bash
-   cd server && ./gradlew build
-   ```
-4. **Run the server**:
-   ```bash
-   ./gradlew run --args="3000"
-   ```
+3. Change the directory to the `server` subproject:
+    ```bash
+    cd server
+    ```
+4. **Build the server**:
+    ```bash
+    ../gradlew build
+    ```
+5. **Create a database directory and run the server**:
+    ```bash
+    mkdir data && ../gradlew run --args="3000"
+    ```
    (Replace `3000` with your desired port)
 
-   Alternatively, you can build a fat JAR and run it with `java -jar <fat.jar>`.
+   Alternatively, you can build a fat JAR (see [Development](#development)) and run it with `java -jar <fat.jar>`.
 
    The server will start and listen for MCP connections on the specified port.
 
    The MCP path is `/mcp`, so you can access it at `http://localhost:3000/mcp` (or any other of your IP addresses
    because the server listens on 0.0.0.0).
 
-   If that works, hit Ctrl+C to shut the server down. It should have created a database file named ``data/users.db``.
+   If that works, hit Ctrl+C to shut the server down. It should have created a database file named `data/users.db`.
 
 ## Configuration
 
