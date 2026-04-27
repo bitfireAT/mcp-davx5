@@ -4,12 +4,12 @@ An experimental [Model Context Protocol (MCP)](https://modelcontextprotocol.org/
 
 ## ⚠️ Experimental Status
 
->[!WARNING]
->This project is **experimental** and under active development. The API and functionality may change without notice.
->There are **no automatic database migrations**.
+> [!WARNING]
+> This project is **experimental** and under active development. The API and functionality may change without notice.
+> There are **no automatic database migrations**.
 
->[!CAUTION]
->Not intended for production use. Only use in test environments.
+> [!CAUTION]
+> Not intended for production use. Only use in test environments.
 
 ## What it does
 
@@ -31,15 +31,18 @@ These are the steps to manually compile and run davmcp. You can also [use Docker
 1. Prepare the required environment: Currently only a JDK is needed. `sqlite3` or a similar tool is required to edit
    the database since there's no configuration UI (yet).
 2. Checkout or download davmcp.
-2. **Build the server**:
+3. **Build the server**:
    ```bash
    cd server && ./gradlew build
    ```
-3. **Run the server**:
+4. **Run the server**:
    ```bash
    ./gradlew run --args="3000"
    ```
    (Replace `3000` with your desired port)
+
+   The MCP path is `/mcp`, so you can access it at `http://localhost:3000/mcp` (or any other of your IP addresses
+   because the server listens on 0.0.0.0).
 
    Alternatively, you can build a fat JAR and run it with `java -jar <fat.jar>`.
 
@@ -47,15 +50,49 @@ These are the steps to manually compile and run davmcp. You can also [use Docker
 
    If that works, hit Ctrl+C to shut the server down. It should have created a database file named ``data/users.db``.
 
-3. **Add users and server profiles**:
+5. **Add user and access token**:
 
    The AI that acts on your behalf has to authenticate against davmcp. You have to create a token for that
    in the database:
-   ```
-   <TODO> sqlite3 command to insert a user (see User.sq for table definition)
+   ```bash
+   sqlite3 data/users.db "INSERT INTO user (name, email) VALUES ('Your Name', 'your-email@example.com');"
+   # first user has now user id=1
+   
+   sqlite3 data/users.db "INSERT INTO accessToken (userId, token) VALUES (1, '<random-user-token>');"
    ```
 
-4. **Add the MCP connection to your AI model.**
+   That token is later required when you connect the AI to davmcp.
+
+6. **Add CalDAV service and calendars**:
+
+   ```bash
+   sqlite3 data/users.db "INSERT INTO service (userId, username, password, baseUrl) VALUES (1, 'your-caldav-username', 'your-caldav-password', 'https://caldav.example.com');"
+   # first service now has service id=1
+   
+   sqlite3 data/users.db "INSERT INTO collection (serviceId, url, displayName) VALUES (1, 'https://caldav.example.com/calendars/user/calendar1', 'My Calendar');"
+   sqlite3 data/users.db "INSERT INTO collection (serviceId, url, displayName) VALUES (1, 'https://caldav.example.com/calendars/user/calendar2', 'My Second Calendar');"
+   ```
+
+7. **Add the MCP connection to your AI model.**
+
+   How this step is done depends on the used environment. Look in the documentation of your AI environment for how to
+   _add an MCP server_.
+
+   - If you use a command-line interface (CLI) to the model, you can usually add an MCP server in the configuration
+     file. Use `http://localhost:3000/mcp` as MCP URL in that case. Configure authentication with token so that the CLI
+     sends `Authentication: Bearer <your-access-token>`.
+   - When you run a model locally, you can usually also add MCP servers somehow.
+   - If you use a cloud model (usually over a Web interface or an API), you have to run the MCP server on a public URL
+     because the remote model needs access to it. You can run the davmcp server behind a reverse proxy like nginx (
+     configure for SSE!) and then configure the public URL, usually something like `https://your-public-server.com/mcp`
+     in the model configuration. Again, set the authentication method to _token_ and provide your access token.
+     Alternatively, add `Authentication: Bearer <your-access-token>` to the headers.
+
+8. Enable the MCP/tools for specific requests.
+
+   You may have to enable the MCP or its tools when you send a request to the model. For instance, if you're using a
+   remote model over a Web interface, you may need to click some "+" button and select the davmcp server to allow its
+   usage in the request.
 
 ## Configuration
 
@@ -75,4 +112,5 @@ This project uses Gradle for dependency management and building:
 
 ## About MCP
 
-The [Model Context Protocol](https://modelcontextprotocol.org/) is a protocol for AI agents to interact with external tools and services in a structured way.
+The [Model Context Protocol](https://modelcontextprotocol.org/) is a protocol for AI agents to interact with external
+tools and services in a structured way.
