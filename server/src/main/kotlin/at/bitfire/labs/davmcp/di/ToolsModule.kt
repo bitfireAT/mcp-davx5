@@ -22,6 +22,10 @@ object ToolsModule {
 
     @Provides
     @IntoSet
+    fun provideListAllEventsTool(listAllEventsTool: ListAllEventsTool): McpTool = listAllEventsTool
+
+    @Provides
+    @IntoSet
     fun provideQueryByTimeTool(queryEventsByTimeTool: QueryEventsByTimeTool): McpTool = queryEventsByTimeTool
 
     @Provides
