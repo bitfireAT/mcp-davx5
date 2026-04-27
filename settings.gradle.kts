@@ -1,7 +1,7 @@
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
-rootProject.name = "mcp-davx5"
+rootProject.name = "davmcp"
 
 // Include the server subproject
 include("server")

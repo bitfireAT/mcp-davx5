@@ -13,8 +13,7 @@ import io.ktor.http.*
 import io.modelcontextprotocol.kotlin.sdk.server.ClientConnection
 import io.modelcontextprotocol.kotlin.sdk.types.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.*
 import java.util.*
 import java.util.logging.Level
 import javax.inject.Inject
@@ -37,6 +36,27 @@ class AddEventTool @Inject constructor(
                 })
             },
             required = listOf("eventData")
+        ),
+        outputSchema = ToolSchema(
+            properties = buildJsonObject {
+                put("fileName", buildJsonObject {
+                    put("type", "string")
+                    put("description", "File name of the created event")
+                })
+                put("iCalendar", buildJsonObject {
+                    put("type", "string")
+                    put("description", "Generated iCalendar data")
+                })
+                put("success", buildJsonObject {
+                    put("type", "boolean")
+                    put("description", "Whether the operation was successful")
+                })
+                put("message", buildJsonObject {
+                    put("type", "string")
+                    put("description", "Additional information about the result")
+                })
+            },
+            required = listOf("fileName", "iCalendar", "success")
         ),
         annotations = ToolAnnotations(
             readOnlyHint = false,
@@ -78,13 +98,19 @@ class AddEventTool @Inject constructor(
                     newFileName = Url(newLocation).segments.last()
             }
 
+            val outputData = OutputData(
+                fileName = newFileName,
+                iCalendar = iCalendar,
+                success = true,
+                message = "File name of created event: $newFileName. " +
+                        "This file name can directly be used to edit or delete the event again, without need to query/fetch it first."
+            )
+
             return CallToolResult(
                 content = listOf(
-                    TextContent(
-                        "Success. File name of created event: $newFileName. " +
-                                "This file name can directly be used to edit or delete the event again, without need to query/fetch it first."
-                    )
-                )
+                    TextContent(McpJson.encodeToString(outputData))
+                ),
+                structuredContent = McpJson.encodeToJsonElement(outputData).jsonObject
             )
         }
     }
@@ -94,6 +120,14 @@ class AddEventTool @Inject constructor(
     private data class InputData(
         val collectionId: Long? = null,
         val eventData: SimpleEvent
+    )
+
+    @Serializable
+    private data class OutputData(
+        val fileName: String,
+        val iCalendar: String,
+        val success: Boolean = true,
+        val message: String? = null
     )
 
 }
