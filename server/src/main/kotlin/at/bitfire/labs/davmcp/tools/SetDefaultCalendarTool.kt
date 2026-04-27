@@ -1,5 +1,6 @@
 package at.bitfire.labs.davmcp.tools
 
+import at.bitfire.labs.davmcp.UserPreferenceKeys
 import at.bitfire.labs.davmcp.db.Database
 import at.bitfire.labs.davmcp.db.User
 import at.bitfire.labs.davmcp.json.McpJson
@@ -47,7 +48,11 @@ class SetDefaultCalendarTool @Inject constructor(
             ?: throw IllegalArgumentException("Collection with id=${input.collectionId} not found")
 
         // Update the default collection
-        database.userQueries.setDefaultCalendar(collection.id, user.id)
+        database.userPreferenceQueries.setNumValue(
+            user.id,
+            UserPreferenceKeys.DEFAULT_CALENDAR,
+            collection.id
+        )
 
         return CallToolResult(
             content = listOf(

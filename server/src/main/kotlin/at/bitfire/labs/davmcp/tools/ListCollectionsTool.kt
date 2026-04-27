@@ -62,6 +62,7 @@ class ListCollectionsTool @Inject constructor(
     override suspend fun handle(connection: ClientConnection, user: User, request: CallToolRequest): CallToolResult {
         logToolCall("ListCollectionsTool", user, null)
         val service = getCalDavService(database, user)
+        val defaultCalendarId = getDefaultCalendarId(database, user.id)
         val collections = database.collectionQueries.getByService(service.id).executeAsList()
 
         val result = collections.map { col ->
@@ -69,7 +70,7 @@ class ListCollectionsTool @Inject constructor(
                 id = col.id,
                 displayName = col.displayName,
                 url = col.url,
-                isDefault = col.id == user.defaultCalendarId
+                isDefault = col.id == defaultCalendarId
             )
         }
 
