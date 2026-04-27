@@ -46,21 +46,23 @@ These are the steps to manually compile and run davmcp. You can also [use Docker
    the database since there's no configuration UI (yet). `npx` (NodeJS package manager) is needed if you want to run
    the MCP Inspector.
 2. Check out or download davmcp.
-3. Change the directory to the `server` subproject:
+3. Change the directory to the `server` subproject and keep using that directory for all remaining commands in this
+   section and in [Configuration](#configuration):
     ```bash
     cd server
     ```
 4. **Build the server**:
     ```bash
-    ../gradlew build
+    ../gradlew :server:build
     ```
 5. **Create a database directory and run the server**:
     ```bash
-    mkdir data && ../gradlew run --args="3000"
+    mkdir -p data && ../gradlew :server:run --args="3000"
     ```
    (Replace `3000` with your desired port)
 
-   Alternatively, you can build a fat JAR (see [Development](#development)) and run it with `java -jar <fat.jar>`.
+   Alternatively, you can build a fat JAR (see [Development](#development)) and run it from `server` with
+   `java -jar build/libs/server-*-all.jar 3000`.
 
    The server will start and listen for MCP connections on the specified port.
 
@@ -70,6 +72,8 @@ These are the steps to manually compile and run davmcp. You can also [use Docker
    If that works, hit Ctrl+C to shut the server down. It should have created a database file named `data/users.db`.
 
 ## Configuration
+
+All commands in this section assume your current working directory is still `server`.
 
 1. **Add user and access token**:
 
@@ -99,13 +103,13 @@ These are the steps to manually compile and run davmcp. You can also [use Docker
 
 3. Optional: **Verify MCP is working.**
 
-    - Access `http://localhost:3000/mcp` with your browser. It should show 401 Unauthorized because no access token is
-      sent.
-    - You can verify that the MCP is working using
-      the [MCP inspector](https://modelcontextprotocol.io/docs/tools/inspector):
-      Run `npx @modelcontextprotocol/inspector` and then connect to `http://localhost:3000/mcp`, using a Custom Header
-      for authentication (`Authorization: Bearer <your-access-token>`). Once you're connected, you can _List Tools_
-      and try out whatever tool you like.
+   - Access `http://localhost:3000/mcp` with your browser. It should show 401 Unauthorized because no access token is
+     sent.
+   - You can verify that the MCP is working using
+     the [MCP inspector](https://modelcontextprotocol.io/docs/tools/inspector): from another terminal, change to
+     `server` as well, run `npx @modelcontextprotocol/inspector`, and then connect to `http://localhost:3000/mcp`,
+     using a Custom Header for authentication (`Authorization: Bearer <your-access-token>`). Once you're connected,
+     you can _List Tools_ and try out whatever tool you like.
 
 4. **Add the MCP connection to your AI model.**
 
@@ -137,8 +141,9 @@ This project uses Gradle for dependency management and building:
 
 ```bash
 # Build a fat JAR with all dependencies
-./gradlew fatJar
+cd server
+../gradlew :server:fatJar
 
 # Run tests
-./gradlew test
+../gradlew :server:test
 ```
