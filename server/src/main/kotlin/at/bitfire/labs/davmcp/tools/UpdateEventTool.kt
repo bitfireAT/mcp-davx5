@@ -16,9 +16,7 @@ import io.ktor.http.*
 import io.modelcontextprotocol.kotlin.sdk.server.ClientConnection
 import io.modelcontextprotocol.kotlin.sdk.types.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.put
+import kotlinx.serialization.json.*
 import javax.inject.Inject
 
 class UpdateEventTool @Inject constructor(
@@ -60,6 +58,27 @@ class UpdateEventTool @Inject constructor(
             },
             required = listOf("fileName", "eventDataToUpdate", "eventFieldsToRemove")
         ),
+        outputSchema = ToolSchema(
+            properties = buildJsonObject {
+                put("fileName", buildJsonObject {
+                    put("type", "string")
+                    put("description", "File name of the updated event")
+                })
+                put("iCalendar", buildJsonObject {
+                    put("type", "string")
+                    put("description", "Updated iCalendar data")
+                })
+                put("success", buildJsonObject {
+                    put("type", "boolean")
+                    put("description", "Whether the operation was successful")
+                })
+                put("message", buildJsonObject {
+                    put("type", "string")
+                    put("description", "Additional information about the result")
+                })
+            },
+            required = listOf("fileName", "iCalendar", "success")
+        ),
         annotations = ToolAnnotations(
             readOnlyHint = false,
             destructiveHint = true,
@@ -97,9 +116,21 @@ class UpdateEventTool @Inject constructor(
             davResource.put(io.ktor.http.content.TextContent(updatedEvent, iCalendarContentType)) { _ ->
                 // success
             }
-        }
 
-        return CallToolResult(content = listOf(TextContent("Success")))
+            val outputData = OutputData(
+                fileName = input.fileName,
+                iCalendar = updatedEvent,
+                success = true,
+                message = "Event successfully updated"
+            )
+
+            return CallToolResult(
+                content = listOf(
+                    TextContent(McpJson.encodeToString(outputData))
+                ),
+                structuredContent = McpJson.encodeToJsonElement(outputData).jsonObject
+            )
+        }
     }
 
 
@@ -109,6 +140,14 @@ class UpdateEventTool @Inject constructor(
         val fileName: String,
         val eventDataToUpdate: SimpleEvent,
         val eventFieldsToRemove: List<String>
+    )
+
+    @Serializable
+    private data class OutputData(
+        val fileName: String,
+        val iCalendar: String,
+        val success: Boolean = true,
+        val message: String? = null
     )
 
 }
