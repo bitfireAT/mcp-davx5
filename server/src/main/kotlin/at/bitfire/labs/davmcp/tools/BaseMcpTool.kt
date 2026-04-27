@@ -1,5 +1,6 @@
 package at.bitfire.labs.davmcp.tools
 
+import at.bitfire.labs.davmcp.UserPreferenceKeys
 import at.bitfire.labs.davmcp.db.Collection
 import at.bitfire.labs.davmcp.db.Database
 import at.bitfire.labs.davmcp.db.Service
@@ -38,12 +39,18 @@ abstract class BaseMcpTool : McpTool {
         logger.info("MCP tool $toolName called by ${user.email}: ${input ?: "(no input)"}")
     }
 
+    protected fun getDefaultCalendarId(database: Database, userId: Long): Long? =
+        database.userPreferenceQueries.getNumValue(
+            userId,
+            UserPreferenceKeys.DEFAULT_CALENDAR
+        ).executeAsOneOrNull()?.numValue
+
     /**
      * Resolves the calendar collection to use for an operation.
      *
      * Resolution order:
      * 1. If [specificId] is provided, that specific collection is used.
-     * 2. If the user has a [User.defaultCalendarId] configured, that collection is used.
+     * 2. If the user has a default calendar configured in preferences, that collection is used.
      * 3. Otherwise, silently falls back to the first collection found for the service,
      *    assuming it is the only one.
      *
@@ -60,7 +67,7 @@ abstract class BaseMcpTool : McpTool {
             // specific ID
             specificId
             // or default ID, if defined
-                ?: database.userQueries.getDefaultCalendarId(service.userId).executeAsOneOrNull()?.defaultCalendarId
+                ?: getDefaultCalendarId(database, service.userId)
                 ?: throw IllegalStateException("No default calendar defined. Ask the user to set a default calendar and then try again.")
 
         // Always verify the collection belongs to the service (which belongs to the authenticated user)

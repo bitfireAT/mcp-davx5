@@ -1,0 +1,17 @@
+CREATE TABLE userPreference(
+    userId INTEGER NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+    key TEXT NOT NULL,
+    numValue INTEGER DEFAULT NULL,
+    PRIMARY KEY(userId, key)
+);
+
+CREATE INDEX userPreference_userId ON userPreference(userId);
+
+getNumValue:
+SELECT numValue
+FROM userPreference
+WHERE userId = ?1 AND key = ?2;
+
+setNumValue:
+INSERT OR REPLACE INTO userPreference(userId, key, numValue)
+VALUES (?1, ?2, ?3);
