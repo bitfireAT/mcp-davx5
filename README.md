@@ -42,7 +42,8 @@ clients and CalDAV servers, enabling AI agents and other MCP-compatible tools to
 These are the steps to manually compile and run davmcp. You can also [use Docker](DOCKER.md) instead.
 
 1. Prepare the required environment: Currently only a JDK is needed. `sqlite3` or a similar tool is required to edit
-   the database since there's no configuration UI (yet).
+   the database since there's no configuration UI (yet). `npx` (NodeJS package manager) is needed if you want to run
+   the MCP Inspector.
 2. Check out or download davmcp.
 3. **Build the server**:
    ```bash
@@ -91,22 +92,32 @@ These are the steps to manually compile and run davmcp. You can also [use Docker
    sqlite3 data/users.db "INSERT INTO collection (serviceId, url, displayName) VALUES (1, 'https://caldav.example.com/calendars/user/calendar2', 'My Second Calendar');"
    ```
 
-3. **Add the MCP connection to your AI model.**
+3. Optional: **Verify MCP is working.**
+
+    - Access `http://localhost:3000/mcp` with your browser. It should show 401 Unauthorized because no access token is
+      sent.
+    - You can verify that the MCP is working using
+      the [MCP inspector](https://modelcontextprotocol.io/docs/tools/inspector):
+      Run `npx @modelcontextprotocol/inspector` and then connect to `http://localhost:3000/mcp`, using a Custom Header
+      for authentication (`Authorization: Bearer <your-access-token>`). Once you're connected, you can _List Tools_
+      and try out whatever tool you like.
+
+4. **Add the MCP connection to your AI model.**
 
    How this step is done depends on the used environment. Look in the documentation of your AI environment for how to
    _add an MCP server_.
 
    - If you use a command-line interface (CLI) to the model, you can usually add an MCP server in the configuration
      file. Use `http://localhost:3000/mcp` as MCP URL in that case. Configure authentication with token so that the CLI
-     sends `Authentication: Bearer <your-access-token>`.
+     sends `Authorization: Bearer <your-access-token>`.
    - When you run a model locally, you can usually also add MCP servers somehow.
    - If you use a cloud model (usually over a Web interface or an API), you have to run the MCP server on a public URL
      because the remote model needs access to it. You can run the davmcp server behind a reverse proxy like nginx (
      configure for SSE!) and then configure the public URL, usually something like `https://your-public-server.com/mcp`
      in the model configuration. Again, set the authentication method to _token_ and provide your access token.
-     Alternatively, add `Authentication: Bearer <your-access-token>` to the headers.
+     Alternatively, add `Authorization: Bearer <your-access-token>` to the headers.
 
-4. Enable the MCP/tools for specific requests.
+5. **Enable the MCP/tools for specific requests.**
 
    You may have to enable the MCP or its tools when you send a request to the model. For instance, if you're using a
    remote model over a Web interface, you may need to click some "+" button and select the davmcp server to allow its
