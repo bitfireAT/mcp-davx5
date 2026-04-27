@@ -2,11 +2,11 @@
 
 1. Build the docker image:
     ```shell
-    docker build -t davx5-mcp -f docker/Dockerfile .
+    docker build -t davmcp -f docker/Dockerfile .
     ```
 2. Start the container:
     ```shell
-    docker run -p 3000 -v davx5-mcp-data:/app/data davx5-mcp
+    docker run -p 3000 -v davmcp-data:/app/data davmcp
     ```
 
 # Docker Compose

@@ -32,7 +32,7 @@ class McpServer @Inject constructor(
         get() = Logger.getLogger(javaClass.name)
 
     fun start(port: Int) {
-        println("Running MCP server")
+        println("Running MCP server on http://0.0.0.0:3000/mcp")
         embeddedServer(CIO, host = "0.0.0.0", port = port) {
             install(SSE)
             install(ContentNegotiation) {
@@ -72,7 +72,7 @@ class McpServer @Inject constructor(
     private fun createServerForUser(user: User): Server {
         val server = Server(
             serverInfo = Implementation(
-                name = "3dav-mcp-server",
+                name = "davmcp-server",
                 version = "0.0.1"
             ),
             options = ServerOptions(
